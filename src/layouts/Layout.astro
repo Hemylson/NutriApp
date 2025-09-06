@@ -1,22 +1,248 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+// src/layouts/Layout.astro
+export interface Props {
+  title: string;
+}
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+const { title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Herramientas para nutricionistas" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header class="header">
+      <div class="container">
+        <div class="logo">
+          <!-- Aquí irá tu logo -->
+          <img src="/nutriapp.svg" alt="NutriApp" class="logo-img" />
+        </div>
+        <nav class="nav">
+          <a href="/" class="nav-link">Inicio</a>
+          <a href="/dietas" class="nav-link">Tipos de Dietas</a>
+          <a href="/calculadora" class="nav-link calculadora-link">
+            Calculadora Nutricional
+            <span class="coming-soon">Próximamente</span>
+          </a>
+        </nav>
+        <button class="menu-toggle" id="menuToggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+      <slot />
+    </main>
+
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2024 NutriApp - Herramientas para Nutricionistas</p>
+      </div>
+    </footer>
+
+    <style>
+      :root {
+        --primary-color: #2d5a87;
+        --secondary-color: #4a9eff;
+        --accent-color: #00c896;
+        --text-color: #333;
+        --light-bg: #f8fafc;
+        --white: #ffffff;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --border-radius: 8px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: var(--text-color);
+        background-color: var(--light-bg);
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      /* Header */
+      .header {
+        background: var(--white);
+        box-shadow: var(--shadow);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+      }
+
+      .logo-img {
+        height: 40px;
+        width: auto;
+      }
+
+      /* Navigation */
+      .nav {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        color: var(--text-color);
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .nav-link:hover {
+        background-color: var(--light-bg);
+        color: var(--primary-color);
+      }
+
+      .calculadora-link {
+        position: relative;
+        color: #999;
+        cursor: not-allowed;
+      }
+
+      .coming-soon {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: var(--accent-color);
+        color: white;
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 10px;
+        white-space: nowrap;
+      }
+
+      /* Menu Toggle (Mobile) */
+      .menu-toggle {
+        display: none;
+        flex-direction: column;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+      }
+
+      .menu-toggle span {
+        width: 25px;
+        height: 3px;
+        background: var(--text-color);
+        margin: 2px 0;
+        transition: 0.3s;
+        border-radius: 2px;
+      }
+
+      /* Main Content */
+      .main {
+        min-height: calc(100vh - 140px);
+        padding: 2rem 0;
+      }
+
+      /* Footer */
+      .footer {
+        background: linear-gradient(135deg, var(--grayDark), var(--accentSage));
+        color: var(--white);
+        text-align: center;
+        padding: 2.5rem 0;
+        margin-top: auto;
+        border-radius: 20px 20px 0 0;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .menu-toggle {
+          display: flex;
+        }
+
+        .nav {
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--white);
+          flex-direction: column;
+          box-shadow: var(--shadow);
+          padding: 1rem;
+          transform: translateY(-100%);
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+        }
+
+        .nav.active {
+          transform: translateY(0);
+          opacity: 1;
+          visibility: visible;
+        }
+
+        .nav-link {
+          padding: 1rem;
+          border-bottom: 1px solid #eee;
+        }
+
+        .nav-link:last-child {
+          border-bottom: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header .container {
+          padding: 0.75rem;
+        }
+
+        .logo-img {
+          height: 35px;
+        }
+      }
+    </style>
+
+    <script>
+      // Mobile menu toggle
+      document.addEventListener('DOMContentLoaded', () => {
+        const menuToggle = document.getElementById('menuToggle');
+        const nav = document.querySelector('.nav');
+
+        if (menuToggle && nav) {
+          menuToggle.addEventListener('click', () => {
+            nav.classList.toggle('active');
+          });
+
+          // Close menu when clicking outside
+          document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !nav.contains(e.target)) {
+              nav.classList.remove('active');
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
