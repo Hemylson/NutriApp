@@ -32,10 +32,9 @@ const { title } = Astro.props;
             <span class="nav-icon">🥗</span>
             Tipos de Dietas
           </a>
-          <a href="/calculadora" class="nav-link calculadora-link">
+          <a href="/calculadora" class="nav-link">
             <span class="nav-icon">🧮</span>
-            Calculadora Nutricional
-            <span class="coming-soon">Próximamente</span>
+              Calculadora Nutricional
           </a>
         </nav>
         <button class="menu-toggle" id="menuToggle">
@@ -58,11 +57,11 @@ const { title } = Astro.props;
             <span class="footer-text">NutriApp</span>
           </div>
           <p class="footer-description">
-            Herramientas profesionales para nutricionistas 
+            Herramientas para mi nutricionista
             <span class="heart">💖</span>
           </p>
           <p class="footer-copyright">
-            © 2024 NutriApp - Creado con cariño para profesionales de la nutrición
+            © 2024 NutriApp - Creado con cariño para mi profesional de la nutrición
           </p>
         </div>
       </div>
@@ -182,33 +181,6 @@ const { title } = Astro.props;
 
       .nav-icon {
         font-size: 1.1rem;
-      }
-
-      .calculadora-link {
-        position: relative;
-        color: var(--grayMedium);
-        cursor: not-allowed;
-      }
-
-      .calculadora-link:hover {
-        background: rgba(255, 255, 255, 0.7);
-        color: var(--grayMedium);
-        transform: none;
-        box-shadow: none;
-      }
-
-      .coming-soon {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: var(--accentSage);
-        color: white;
-        font-size: 10px;
-        padding: 3px 8px;
-        border-radius: 12px;
-        white-space: nowrap;
-        font-weight: 600;
-        box-shadow: 0 2px 8px rgba(168, 207, 194, 0.4);
       }
 
       /* Menu Toggle (Mobile) */
