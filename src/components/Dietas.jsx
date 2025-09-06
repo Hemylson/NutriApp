@@ -13,7 +13,7 @@ Indicado para: Personas sanas sin requerimientos nutricionales especiales.
 Alimentos restringidos: Ninguno.  
 IDMA: 50% carbohidratos, 20% proteínas, 30% grasas.
       `,
-      color: "#EB92A3" // cheery
+      color: "#EB92A3"
     },
     {
       id: 2,
@@ -26,7 +26,7 @@ Indicado para: Pre y postoperatorios, procesos digestivos agudos.
 Alimentos restringidos: Grasas, fibras, lácteos.  
 IDMA: Agua y trazas de CHO simples.
       `,
-      color: "#E3C0CF" // irresistible
+      color: "#E3C0CF"
     },
     {
       id: 3,
@@ -39,7 +39,7 @@ Indicado para: Dificultad para masticar/deglutir, estados postoperatorios.
 Alimentos restringidos: Alimentos sólidos.  
 IDMA: 55% CHO, 20% proteína, 25% grasa.
       `,
-      color: "#A8CFC2" // accentSage
+      color: "#A8CFC2"
     },
     {
       id: 4,
@@ -52,7 +52,7 @@ Indicado para: Pacientes geriátricos o con disfunción neuromuscular.
 Alimentos restringidos: Duros, fibrosos o crujientes.  
 IDMA: 50% CHO, 20% proteína, 30% grasa.
       `,
-      color: "#8CAFCF" // accentBlue
+      color: "#8CAFCF"
     },
     {
       id: 5,
@@ -65,7 +65,7 @@ Indicado para: Desnutrición, caquexia, quemaduras.
 Alimentos restringidos: Ninguno específico.  
 IDMA: 55% CHO, 20% proteína, 25% grasa o mayor.
       `,
-      color: "#F0BCC9" // inThePink
+      color: "#F0BCC9"
     },
     {
       id: 6,
@@ -78,9 +78,15 @@ Indicado para: Sobrepeso y obesidad.
 Alimentos restringidos: Azúcares, grasas saturadas, frituras.  
 IDMA: 45% CHO, 30% proteína, 25% grasa.
       `,
-      color: "#EB92A3" // cheery
+      color: "#EB92A3"
     }
   ]);
+
+  const [expanded, setExpanded] = useState(null);
+
+  const toggleExpand = (id) => {
+    setExpanded(expanded === id ? null : id);
+  };
 
   return (
     <div className="dietas-container">
@@ -113,6 +119,12 @@ IDMA: 45% CHO, 30% proteína, 25% grasa.
           border: 1px solid #eee;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
           position: relative;
+          cursor: pointer;
+          transition: transform 0.2s ease;
+        }
+
+        .dieta-card:hover {
+          transform: translateY(-4px);
         }
 
         .dieta-card::before {
@@ -143,9 +155,22 @@ IDMA: 45% CHO, 30% proteína, 25% grasa.
           line-height: 1.6;
           font-size: 0.95rem;
           background: #f8f8f8;
-          padding: 1rem;
+          padding: 0 1rem;
           border-radius: 10px;
           border-left: 4px solid var(--card-color, #EB92A3);
+          margin-top: 0.5rem;
+
+          /* Animación */
+          max-height: 0;
+          opacity: 0;
+          overflow: hidden;
+          transition: max-height 0.5s ease, opacity 0.4s ease, padding 0.3s ease;
+        }
+
+        .dieta-detalles.show {
+          max-height: 500px; /* suficiente para mostrar el contenido */
+          opacity: 1;
+          padding: 1rem;
         }
       `}</style>
 
@@ -160,6 +185,7 @@ IDMA: 45% CHO, 30% proteína, 25% grasa.
             key={dieta.id} 
             className="dieta-card"
             style={{ '--card-color': dieta.color }}
+            onClick={() => toggleExpand(dieta.id)}
           >
             <div className="dieta-header">
               <h3>{dieta.nombre}</h3>
@@ -167,7 +193,7 @@ IDMA: 45% CHO, 30% proteína, 25% grasa.
             
             <p className="dieta-descripcion">{dieta.descripcion}</p>
             
-            <div className="dieta-detalles">
+            <div className={`dieta-detalles ${expanded === dieta.id ? "show" : ""}`}>
               {dieta.detalles}
             </div>
           </article>
