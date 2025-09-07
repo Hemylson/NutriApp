@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Calculator, ChevronRight, Activity } from 'lucide-react';
+import Step2IDMA from './Step2IDMA';
 
 const CalculadoraNutricional = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -17,8 +18,25 @@ const CalculadoraNutricional = () => {
     // Gasto energético
     ger: '',
     factorActividad: '1.2',
-    get: ''
+    get: '',
+    // Paso 2: Macronutrientes
+    macros: {
+      proteinasPorcentaje: '20',
+      proteinasKcal: '',
+      proteinasGramos: '',
+      carbohidratosPorcentaje: '50',
+      carbohidratosKcal: '',
+      carbohidratosGramos: '',
+      grasasPorcentaje: '30',
+      grasasKcal: '',
+      grasasGramos: ''
+    }
   });
+
+  const generos = [
+  { value: 'masculino', label: 'Masculino', emoji: '👨' },
+  { value: 'femenino', label: 'Femenino', emoji: '👩' }
+];
 
   // Función para obtener la clasificación del IMC
   const getIMCClassification = (imc) => {
@@ -76,7 +94,6 @@ const CalculadoraNutricional = () => {
       const peso = parseFloat(formData.peso);
       const talla = parseFloat(formData.talla);
       const edad = parseFloat(formData.edad);
-      
       if (peso > 0 && talla > 0 && edad > 0) {
         let ger;
         if (formData.genero === 'masculino') {
@@ -121,8 +138,24 @@ const CalculadoraNutricional = () => {
     setFormData(prev => ({ ...prev, factorActividad: value }));
   };
 
+  const updateFormData = (newData) => {
+    setFormData(prev => ({ ...prev, ...newData }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < 2) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(prev => prev - 1);
+    }
+  };
+
   const isStep1Valid = () => {
-    return formData.genero && formData.peso && formData.talla && formData.edad;
+    return formData.genero && formData.peso && formData.talla && formData.edad && formData.get;
   };
 
   const renderResultCard = (title, value, unit, description, className = '') => {
@@ -140,6 +173,7 @@ const CalculadoraNutricional = () => {
     );
   };
 
+  // Paso 1
   const renderStep1 = () => {
     const imcClassification = formData.imc ? getIMCClassification(formData.imc) : null;
 
@@ -161,10 +195,7 @@ const CalculadoraNutricional = () => {
               Género <span className="required">*</span>
             </label>
             <div className="button-grid">
-              {[
-                { value: 'masculino', label: 'Masculino', emoji: '👨' },
-                { value: 'femenino', label: 'Femenino', emoji: '👩' }
-              ].map((genero) => (
+              {generos.map((genero) => (
                 <button
                   key={genero.value}
                   onClick={() => handleInputChange('genero', genero.value)}
@@ -370,38 +401,71 @@ const CalculadoraNutricional = () => {
             )}
           </div>
         )}
+
+        {/* Botón siguiente */}
+        {isStep1Valid() && formData.get && (
+          <div className="step-navigation">
+            <button
+              onClick={nextStep}
+              className="next-step-button"
+            >
+              Siguiente: Distribución de Macronutrientes
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </div>
     );
+  };
+
+  // Renderiza el paso actual
+  const renderCurrentStep = () => {
+    switch (currentStep) {
+      case 1:
+        return renderStep1();
+      case 2:
+        return (
+          <Step2IDMA
+            formData={formData}
+            totalCalories={parseInt(formData.get) || 0}
+            onNext={nextStep}
+            onPrev={prevStep}
+            onChange={updateFormData}
+          />
+        );
+      default:
+        return renderStep1();
+    }
   };
 
   return (
     <div className="calculator-container">
       <div className="calculator-card">
-        {/* Progress Bar */}
+        {/* Progress Bar actualizada */}
         <div className="progress-bar">
-          <div className="progress-fill" style={{ width: `${(currentStep / 1) * 100}%` }}></div>
+          <div
+            className="progress-fill"
+            style={{ width: `${(currentStep / 2) * 100}%` }}
+          />
         </div>
 
-        {/* Form Content */}
-        <div className="form-content">
-          {renderStep1()}
-        </div>
-
-        {/* Footer Info */}
-        {isStep1Valid() && formData.get && (
-          <div className="footer-info">
-            <div className="info-card">
-              <h4>💡 Información importante</h4>
-              <ul>
-                <li>Estos valores son estimativos y pueden variar según factores individuales</li>
-                <li>Para objetivos específicos consulta con un profesional en nutrición</li>
-                <li>El GET representa tu gasto calórico diario aproximado</li>
-              </ul>
-            </div>
+        {/* Indicador de pasos */}
+        <div className="steps-indicator">
+          <div className={`step-indicator ${currentStep >= 1 ? 'active' : ''}`}>
+            1. Datos Básicos
           </div>
-        )}
+          <div className={`step-indicator ${currentStep >= 2 ? 'active' : ''}`}>
+            2. Macronutrientes
+          </div>
+        </div>
+
+        {/* Contenido del paso actual */}
+        <div className="form-content">
+          {renderCurrentStep()}
+        </div>
       </div>
 
+      {/* Tus estilos actuales + estilos adicionales */}
       <style jsx>{`
         :root {
           --cheery: #EB92A3;
@@ -865,6 +929,64 @@ const CalculadoraNutricional = () => {
           .footer-info,
           .info-card {
             padding: 1rem;
+          }
+        }
+
+        /* Estilos adicionales para navegación */
+        .step-navigation {
+          margin-top: 2rem;
+          text-align: center;
+        }
+
+        .next-step-button {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 1rem 2rem;
+          background: linear-gradient(135deg, var(--cheery), var(--irresistible));
+          color: var(--white);
+          border: none;
+          border-radius: var(--border-radius);
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: var(--shadow-soft);
+        }
+
+        .next-step-button:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-medium);
+        }
+
+        .steps-indicator {
+          display: flex;
+          justify-content: center;
+          gap: 2rem;
+          padding: 1rem;
+          background: var(--grayLight);
+          margin-bottom: 1rem;
+        }
+
+        .step-indicator {
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--grayMedium);
+          transition: all 0.3s ease;
+        }
+
+        .step-indicator.active {
+          background: linear-gradient(135deg, var(--cheery), var(--irresistible));
+          color: var(--white);
+          box-shadow: var(--shadow-soft);
+        }
+
+        @media (max-width: 768px) {
+          .steps-indicator {
+            flex-direction: column;
+            gap: 0.5rem;
           }
         }
       `}</style>
