@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { User, Calculator, ChevronRight, Activity } from 'lucide-react';
 import Step2IDMA from './Step2IDMA';
+// 1. Importar el nuevo componente
+import Step3Intercambios from './Step3Intercambios';
 
 const CalculadoraNutricional = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -30,6 +32,38 @@ const CalculadoraNutricional = () => {
       grasasPorcentaje: '30',
       grasasKcal: '',
       grasasGramos: ''
+    },
+    // 2. Paso 3: Intercambios
+    intercambios: {
+      lacteos: {
+        descremados: { intercambios: 0, cho: 0, chon: 0, cooh: 0, kcal: 0 },
+        enteros: { intercambios: 1, cho: 12, chon: 8, cooh: 8, kcal: 160 },
+        vegetales: { intercambios: 3, cho: 15, chon: 6, cooh: 0, kcal: 75 }
+      },
+      frutas: {
+        frutas: { intercambios: 2, cho: 30, chon: 0, cooh: 0, kcal: 120 }
+      },
+      cereales: {
+        conGrasa: { intercambios: 6, cho: 90, chon: 18, cooh: 15, kcal: 540 },
+        sinGrasa: { intercambios: 2, cho: 30, chon: 6, cooh: 0, kcal: 150 }
+      },
+      proteinas: {
+        magra: { intercambios: 4, cho: 0, chon: 28, cooh: 12, kcal: 220 },
+        mediana: { intercambios: 2, cho: 0, chon: 14, cooh: 10, kcal: 150 },
+        alta: { intercambios: 1, cho: 0, chon: 7, cooh: 8, kcal: 95 }
+      },
+      verduras: {
+        verduras: { intercambios: 3, cho: 15, chon: 6, cooh: 0, kcal: 75 }
+      },
+      grasas: {
+        grasas: { intercambios: 3, cho: 0, chon: 0, cooh: 15, kcal: 135 }
+      }
+    },
+    totalesNutricionales: {
+      totalCho: 0,
+      totalChon: 0, 
+      totalCooh: 0,
+      totalKcal: 0
     }
   });
 
@@ -142,8 +176,9 @@ const CalculadoraNutricional = () => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
 
+  // 3. Actualizar la función nextStep para manejar 3 pasos
   const nextStep = () => {
-    if (currentStep < 2) {
+    if (currentStep < 3) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -409,7 +444,7 @@ const CalculadoraNutricional = () => {
               onClick={nextStep}
               className="next-step-button"
             >
-              Siguiente: Distribución de Macronutrientes
+              Siguiente: Macronutrientes
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
@@ -433,6 +468,19 @@ const CalculadoraNutricional = () => {
             onChange={updateFormData}
           />
         );
+      case 3:
+        return (
+          <Step3Intercambios
+            formData={formData}
+            onNext={() => {
+              // Aquí puedes manejar la finalización
+              console.log('Calculadora completada:', formData);
+              // Redireccionar o mostrar resultados finales
+            }}
+            onPrev={prevStep}
+            onChange={updateFormData}
+          />
+        );
       default:
         return renderStep1();
     }
@@ -441,21 +489,24 @@ const CalculadoraNutricional = () => {
   return (
     <div className="calculator-container">
       <div className="calculator-card">
-        {/* Progress Bar actualizada */}
+        {/* 4. Actualizar la barra de progreso */}
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(currentStep / 2) * 100}%` }}
+            style={{ width: `${(currentStep / 3) * 100}%` }}
           />
         </div>
 
-        {/* Indicador de pasos */}
+        {/* 5. Actualizar los indicadores de pasos */}
         <div className="steps-indicator">
           <div className={`step-indicator ${currentStep >= 1 ? 'active' : ''}`}>
             1. Datos Básicos
           </div>
           <div className={`step-indicator ${currentStep >= 2 ? 'active' : ''}`}>
             2. Macronutrientes
+          </div>
+          <div className={`step-indicator ${currentStep >= 3 ? 'active' : ''}`}>
+            3. Intercambios
           </div>
         </div>
 
@@ -987,6 +1038,10 @@ const CalculadoraNutricional = () => {
           .steps-indicator {
             flex-direction: column;
             gap: 0.5rem;
+          }
+          .step-indicator {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
           }
         }
       `}</style>
