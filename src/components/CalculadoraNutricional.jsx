@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { User, Calculator, ChevronRight, Activity } from 'lucide-react';
 import Step2IDMA from './Step2IDMA';
-// 1. Importar el nuevo componente
 import Step3Intercambios from './Step3Intercambios';
-
+// 1. Importa el paso 4
+import Step4DistribucionComidas from './Step4DistribucionComidas.jsx';
+import Step5ResumenNutricional from './Step5ResumenNutricional.jsx';
 const CalculadoraNutricional = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -89,7 +90,9 @@ const CalculadoraNutricional = () => {
       if (pesoNum > 0 && tallaNum > 0) {
         const tallaMts = tallaNum / 100;
         const imc = (pesoNum / (tallaMts * tallaMts)).toFixed(1);
-        setFormData(prev => ({ ...prev, imc }));
+        if (formData.imc !== imc) {
+          setFormData(prev => ({ ...prev, imc }));
+        }
       }
     }
   }, [formData.peso, formData.talla]);
@@ -105,7 +108,9 @@ const CalculadoraNutricional = () => {
         } else {
           pesoIdeal = ((tallaNum - 100) * 0.85).toFixed(1);
         }
-        setFormData(prev => ({ ...prev, pesoIdeal }));
+        if (formData.pesoIdeal !== pesoIdeal) {
+          setFormData(prev => ({ ...prev, pesoIdeal }));
+        }
       }
     }
   }, [formData.talla, formData.genero]);
@@ -117,7 +122,9 @@ const CalculadoraNutricional = () => {
       const pesoIdealNum = parseFloat(formData.pesoIdeal);
       if (pesoNum > 0 && pesoIdealNum > 0) {
         const pesoAjustado = (pesoIdealNum + ((pesoNum - pesoIdealNum) * 0.25)).toFixed(1);
-        setFormData(prev => ({ ...prev, pesoAjustado }));
+        if (formData.pesoAjustado !== pesoAjustado) {
+          setFormData(prev => ({ ...prev, pesoAjustado }));
+        }
       }
     }
   }, [formData.peso, formData.pesoIdeal]);
@@ -135,7 +142,9 @@ const CalculadoraNutricional = () => {
         } else {
           ger = (447.593 + (9.247 * peso) + (3.098 * talla) - (4.330 * edad)).toFixed(0);
         }
-        setFormData(prev => ({ ...prev, ger }));
+        if (formData.ger !== ger) {
+          setFormData(prev => ({ ...prev, ger }));
+        }
       }
     }
   }, [formData.peso, formData.talla, formData.edad, formData.genero]);
@@ -147,7 +156,9 @@ const CalculadoraNutricional = () => {
       const factor = parseFloat(formData.factorActividad);
       if (gerNum > 0 && factor > 0) {
         const get = (gerNum * factor).toFixed(0);
-        setFormData(prev => ({ ...prev, get }));
+        if (formData.get !== get) {
+          setFormData(prev => ({ ...prev, get }));
+        }
       }
     }
   }, [formData.ger, formData.factorActividad]);
@@ -176,9 +187,9 @@ const CalculadoraNutricional = () => {
     setFormData(prev => ({ ...prev, ...newData }));
   };
 
-  // 3. Actualizar la función nextStep para manejar 3 pasos
+  // 3. Actualiza nextStep para permitir avanzar hasta el paso 4
   const nextStep = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(prev => prev + 1);
     }
   };
@@ -472,11 +483,16 @@ const CalculadoraNutricional = () => {
         return (
           <Step3Intercambios
             formData={formData}
-            onNext={() => {
-              // Aquí puedes manejar la finalización
-              console.log('Calculadora completada:', formData);
-              // Redireccionar o mostrar resultados finales
-            }}
+            onNext={nextStep} // 4. Avanza al paso 4
+            onPrev={prevStep}
+            onChange={updateFormData}
+          />
+        );
+      case 4:
+        return (
+          <Step4DistribucionComidas
+            formData={formData}
+            onNext={() => { /* Aquí puedes finalizar o mostrar resumen */ }}
             onPrev={prevStep}
             onChange={updateFormData}
           />
@@ -493,7 +509,7 @@ const CalculadoraNutricional = () => {
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(currentStep / 3) * 100}%` }}
+            style={{ width: `${(currentStep / 4) * 100}%` }}
           />
         </div>
 
@@ -507,6 +523,9 @@ const CalculadoraNutricional = () => {
           </div>
           <div className={`step-indicator ${currentStep >= 3 ? 'active' : ''}`}>
             3. Intercambios
+          </div>
+          <div className={`step-indicator ${currentStep >= 4 ? 'active' : ''}`}>
+            4. Distribución Comidas
           </div>
         </div>
 
