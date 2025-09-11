@@ -189,8 +189,12 @@ const CalculadoraNutricional = () => {
 
   // 3. Actualiza nextStep para permitir avanzar hasta el paso 4
   const nextStep = () => {
-    if (currentStep < 4) {
+    console.log('nextStep llamado. currentStep actual:', currentStep);
+    if (currentStep < 5) {
+      console.log('Avanzando al paso:', currentStep + 1);
       setCurrentStep(prev => prev + 1);
+    } else {
+      console.log('Ya estoy en el último paso');
     }
   };
 
@@ -492,11 +496,26 @@ const CalculadoraNutricional = () => {
         return (
           <Step4DistribucionComidas
             formData={formData}
-            onNext={() => { /* Aquí puedes finalizar o mostrar resumen */ }}
+            onNext={() => {
+              console.log('onNext del Step4 ejecutado');
+              nextStep();
+            }}
             onPrev={prevStep}
             onChange={updateFormData}
           />
         );
+      case 5:  // Agregar este caso
+      return (
+        <Step5ResumenNutricional
+          formData={formData}
+          onPrev={prevStep}
+          onFinish={() => {
+            // Aquí puedes manejar la finalización del proceso
+            console.log('Plan nutricional completado');
+            // Opcional: resetear o redirigir
+          }}
+        />
+      );
       default:
         return renderStep1();
     }
@@ -509,7 +528,7 @@ const CalculadoraNutricional = () => {
         <div className="progress-bar">
           <div
             className="progress-fill"
-            style={{ width: `${(currentStep / 4) * 100}%` }}
+            style={{ width: `${(currentStep / 5) * 100}%` }}
           />
         </div>
 
@@ -527,6 +546,10 @@ const CalculadoraNutricional = () => {
           <div className={`step-indicator ${currentStep >= 4 ? 'active' : ''}`}>
             4. Distribución Comidas
           </div>
+          <div className={`step-indicator ${currentStep >= 5 ? 'active' : ''}`}>  {/* Agregar esta línea */}
+            5. Resumen Final
+          </div>
+
         </div>
 
         {/* Contenido del paso actual */}

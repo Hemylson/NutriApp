@@ -523,13 +523,23 @@ const Step4DistribucionComidas = ({
         </button>
         
         <button 
-          onClick={onNext}
-          disabled={!isValid()}
-          className={`nav-button next-button ${!isValid() ? 'disabled' : ''}`}
-        >
-          Finalizar
-          <ChevronRight className="nav-icon" />
-        </button>
+          onClick={() => {
+            console.log('Botón finalizar clickeado en Step4');
+            console.log('isValid():', isValid());
+            console.log('onNext función:', typeof onNext);
+            if (isValid()) {
+              console.log('Validación pasada, llamando onNext');
+              onNext();
+            } else {
+              console.log('Validación falló');
+            }
+          }}
+  disabled={!isValid()}
+  className={`nav-button next-button ${!isValid() ? 'disabled' : ''}`}
+>
+  Finalizar
+  <ChevronRight className="nav-icon" />
+</button>
       </div>
     </div>
   );
