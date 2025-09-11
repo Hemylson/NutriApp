@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import './Step5ResumenNutricional.css';
+import PDFExporter from './PDFExporter';
 
 
 const Step5ResumenNutricional = ({ 
@@ -138,6 +139,16 @@ const Step5ResumenNutricional = ({
     if (value === null || value === undefined || value === '') return fallback;
     const parsed = parseFloat(value);
     return isNaN(parsed) ? fallback : parsed;
+  }, []);
+
+  const handlePDFSuccess = useCallback((message) => {
+    setCopiedText(message);
+    setTimeout(() => setCopiedText(''), 3000);
+  }, []);
+
+  const handlePDFError = useCallback((message) => {
+    setCopiedText(message);
+    setTimeout(() => setCopiedText(''), 3000);
   }, []);
 
   // Validación de datos de entrada
@@ -1158,11 +1169,24 @@ ${Object.entries(mealTimes).map(([mealId, meal]) => {
           className="action-button print"
           onClick={() => handleExport('print')}
           loading={loadingStates.print}
-          aria-label="Imprimir plan nutricional"
+          aria-label="Imprimir prescripción dietética"
         >
           <Printer className="action-icon" />
           Imprimir
         </LoadingButton>
+        <PDFExporter
+          datosPersonales={datosPersonales}
+          macros={macros}
+          mealPlan={mealPlan}
+          mealTimes={mealTimes}
+          intercambios={intercambios}
+          totalesNutricionales={totalesNutricionales}
+          getIntercambioName={getIntercambioName}
+          safeParseFloat={safeParseFloat}
+          onSuccess={handlePDFSuccess}
+          onError={handlePDFError}
+          className="action-button pdf"
+        />
         <LoadingButton
           className="action-button download"
           onClick={() => handleExport('download')}
