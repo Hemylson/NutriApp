@@ -1,24 +1,85 @@
-# build output
-dist/
-
-# generated types
-.astro/
-
-# dependencies
-node_modules/
-
-# logs
+# Logs
+logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+lerna-debug.log*
 
-# environment variables
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+.astro/
+.output/
+.vercel/
+.netlify/
+
+# Environment variables
 .env
-.env.production
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# macOS-specific files
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# jetbrains setting folder
-.idea/
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebaserc
+
+# Testing
+coverage/
+.nyc_output
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
