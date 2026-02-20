@@ -1,15 +1,20 @@
 // src/components/FormularioPreparacion.jsx
-import { useState } from 'react';
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { UNIDADES_PREDEFINIDAS, METODOS_COCCION, generarId } from '../utils/constantes';
 import './FormularioPreparacion.css';
 
 /**
- * Formulario para crear preparaciones (platos/recetas)
+ * Formulario para crear/editar preparaciones (platos/recetas)
  * Estilo kawaii profesional
  */
-export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', onGuardado }) {
+export default function FormularioPreparacion({ 
+  idUsuario = 'usuario-temporal', 
+  onGuardado,
+  preparacionEditar = null, // Nueva prop para editar
+  onCancelar = null // Nueva prop para cancelar edición
+}) {
   // Estado del formulario
   const [nombre, setNombre] = useState('');
   const [metodoCoccion, setMetodoCoccion] = useState('');
@@ -22,6 +27,31 @@ export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', 
   // Estados de UI
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idPreparacion, setIdPreparacion] = useState(null);
+
+  /**
+   * Carga los datos de la preparación a editar
+   */
+  useEffect(() => {
+    if (preparacionEditar) {
+      setModoEdicion(true);
+      setIdPreparacion(preparacionEditar.id);
+      setNombre(preparacionEditar.nombre || '');
+      setMetodoCoccion(preparacionEditar.metodoCoccion || '');
+      setNotas(preparacionEditar.notas || '');
+      setAcompanamiento(preparacionEditar.acompanamiento || '');
+      
+      if (preparacionEditar.ingredientes && preparacionEditar.ingredientes.length > 0) {
+        setIngredientes(preparacionEditar.ingredientes.map(ing => ({
+          id: ing.id || generarId(),
+          alimento: ing.alimento,
+          cantidad: ing.cantidad.toString(),
+          unidad: ing.unidad
+        })));
+      }
+    }
+  }, [preparacionEditar]);
 
   /**
    * Agrega un nuevo ingrediente vacío
@@ -80,7 +110,7 @@ export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', 
   };
 
   /**
-   * Guarda la preparación en Firestore
+   * Guarda o actualiza la preparación en Firestore
    */
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,46 +135,73 @@ export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', 
         }));
 
       // Crear el objeto de preparación
-      const preparacion = {
-        idUsuario,
+      const preparacionData = {
         nombre: nombre.trim(),
         ingredientes: ingredientesFiltrados,
         metodoCoccion: metodoCoccion || '',
         notas: notas.trim(),
         acompanamiento: acompanamiento.trim(),
-        creadoEn: Timestamp.now(),
         actualizadoEn: Timestamp.now()
       };
 
-      // Guardar en Firestore
-      const docRef = await addDoc(
-        collection(db, 'usuarios', idUsuario, 'preparaciones'),
-        preparacion
-      );
+      if (modoEdicion && idPreparacion) {
+        // Actualizar preparación existente
+        const docRef = doc(db, 'usuarios', idUsuario, 'preparaciones', idPreparacion);
+        await updateDoc(docRef, preparacionData);
+        
+        console.log('Preparación actualizada con ID:', idPreparacion);
+        alert('✅ Preparación actualizada exitosamente');
+        
+        if (onGuardado) {
+          onGuardado({ id: idPreparacion, ...preparacionData });
+        }
+      } else {
+        // Crear nueva preparación
+        preparacionData.idUsuario = idUsuario;
+        preparacionData.creadoEn = Timestamp.now();
+        
+        const docRef = await addDoc(
+          collection(db, 'usuarios', idUsuario, 'preparaciones'),
+          preparacionData
+        );
 
-      console.log('Preparación guardada con ID:', docRef.id);
-
-      // Limpiar formulario
-      setNombre('');
-      setMetodoCoccion('');
-      setNotas('');
-      setAcompanamiento('');
-      setIngredientes([
-        { id: generarId(), alimento: '', cantidad: '', unidad: 'g' }
-      ]);
-
-      // Callback opcional
-      if (onGuardado) {
-        onGuardado({ id: docRef.id, ...preparacion });
+        console.log('Preparación guardada con ID:', docRef.id);
+        alert('✅ Preparación guardada exitosamente');
+        
+        if (onGuardado) {
+          onGuardado({ id: docRef.id, ...preparacionData });
+        }
       }
 
-      alert('✅ Preparación guardada exitosamente');
+      // Limpiar formulario solo si no estamos editando
+      if (!modoEdicion) {
+        limpiarFormulario();
+      }
     } catch (err) {
       console.error('Error al guardar preparación:', err);
-      setError('Error al guardar la preparación. Intenta de nuevo.');
+      setError(modoEdicion 
+        ? 'Error al actualizar la preparación. Intenta de nuevo.'
+        : 'Error al guardar la preparación. Intenta de nuevo.'
+      );
     } finally {
       setGuardando(false);
     }
+  };
+
+  /**
+   * Limpia el formulario
+   */
+  const limpiarFormulario = () => {
+    setNombre('');
+    setMetodoCoccion('');
+    setNotas('');
+    setAcompanamiento('');
+    setIngredientes([
+      { id: generarId(), alimento: '', cantidad: '', unidad: 'g' }
+    ]);
+    setError('');
+    setModoEdicion(false);
+    setIdPreparacion(null);
   };
 
   return (
@@ -301,27 +358,35 @@ export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', 
 
         {/* Botones de acción */}
         <div className="form-actions">
-          <button
-            type="button"
-            onClick={() => {
-              if (confirm('¿Deseas limpiar el formulario?')) {
-                setNombre('');
-                setMetodoCoccion('');
-                setNotas('');
-                setAcompanamiento('');
-                setIngredientes([
-                  { id: generarId(), alimento: '', cantidad: '', unidad: 'g' }
-                ]);
-                setError('');
-              }
-            }}
-            className="btn btn-secondary"
-          >
-            <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Limpiar
-          </button>
+          {modoEdicion && onCancelar && (
+            <button
+              type="button"
+              onClick={onCancelar}
+              className="btn btn-secondary"
+            >
+              <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Cancelar
+            </button>
+          )}
+
+          {!modoEdicion && (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm('¿Deseas limpiar el formulario?')) {
+                  limpiarFormulario();
+                }
+              }}
+              className="btn btn-secondary"
+            >
+              <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Limpiar
+            </button>
+          )}
 
           <button
             type="submit"
@@ -333,14 +398,14 @@ export default function FormularioPreparacion({ idUsuario = 'usuario-temporal', 
                 <svg className="btn-icon loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                Guardando...
+                {modoEdicion ? 'Actualizando...' : 'Guardando...'}
               </>
             ) : (
               <>
                 <svg className="btn-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                Guardar Preparación
+                {modoEdicion ? 'Actualizar Preparación' : 'Guardar Preparación'}
               </>
             )}
           </button>

@@ -1,0 +1,25 @@
+---
+// src/pages/mis-preparaciones.astro
+import Layout from '../layouts/Layout.astro';
+import ListaPreparaciones from '../components/ListaPreparaciones.jsx';
+---
+
+<Layout title="Mis Preparaciones - NutriApp">
+  <div class="page-container">
+    <ListaPreparaciones client:load />
+  </div>
+
+  <style>
+    .page-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 2rem 0;
+    }
+
+    @media (max-width: 767px) {
+      .page-container {
+        padding: 1rem 0;
+      }
+    }
+  </style>
+</Layout>
