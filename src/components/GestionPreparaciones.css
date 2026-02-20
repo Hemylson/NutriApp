@@ -107,6 +107,35 @@
   box-shadow: var(--shadow-hover);
 }
 
+/* Botón móvil - oculto por defecto */
+.mobile-create-button {
+  display: none;
+}
+
+.btn-crear-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-kawaii);
+  margin-bottom: 1.5rem;
+}
+
+.btn-crear-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
 /* Wrapper del formulario */
 .form-wrapper {
   max-width: 1000px;
@@ -186,6 +215,11 @@
 @media (max-width: 767px) {
   .gestion-container {
     padding: 1rem 0.5rem;
+  }
+
+  .mobile-create-button {
+    display: block;
+    padding: 0 0.75rem;
   }
 
   .header-navegacion {

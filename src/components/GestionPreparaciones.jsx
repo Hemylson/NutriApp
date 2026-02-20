@@ -53,10 +53,11 @@ export default function GestionPreparaciones({ idUsuario = 'usuario-temporal' })
       {/* Vista: Lista */}
       {vista === 'lista' && (
         <>
-          <div className="lista-header-actions">
+          {/* Botón móvil */}
+          <div className="mobile-create-button">
             <button 
               onClick={() => setVista('crear')}
-              className="btn-crear-nuevo"
+              className="btn-crear-mobile"
             >
               <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -64,11 +65,12 @@ export default function GestionPreparaciones({ idUsuario = 'usuario-temporal' })
               Nueva Preparación
             </button>
           </div>
-          
+
           <ListaPreparaciones 
             key={recargarLista}
             idUsuario={idUsuario}
             onEditar={handleEditar}
+            onCrear={() => setVista('crear')}
           />
         </>
       )}

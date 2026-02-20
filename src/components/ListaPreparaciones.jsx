@@ -8,7 +8,7 @@ import './ListaPreparaciones.css';
 /**
  * Componente para listar, ver, editar y eliminar preparaciones guardadas
  */
-export default function ListaPreparaciones({ idUsuario = 'usuario-temporal', onEditar }) {
+export default function ListaPreparaciones({ idUsuario = 'usuario-temporal', onEditar, onCrear }) {
   // Estados
   const [preparaciones, setPreparaciones] = useState([]);
   const [preparacionesFiltradas, setPreparacionesFiltradas] = useState([]);
@@ -126,8 +126,22 @@ export default function ListaPreparaciones({ idUsuario = 'usuario-temporal', onE
           </div>
         </div>
 
-        {/* Buscador */}
-        <div className="search-container">
+        {/* Botón Nueva Preparación */}
+        {onCrear && (
+          <button 
+            onClick={onCrear}
+            className="btn-crear-nuevo"
+          >
+            <svg className="icon-md" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva Preparación
+          </button>
+        )}
+      </div>
+
+      {/* Buscador - Segunda fila */}
+      <div className="search-container">
           <Search className="search-icon" />
           <input
             type="text"
@@ -145,7 +159,6 @@ export default function ListaPreparaciones({ idUsuario = 'usuario-temporal', onE
               <X className="icon-sm" />
             </button>
           )}
-        </div>
       </div>
 
       {/* Lista de preparaciones */}

@@ -1,14 +1,11 @@
-// src/components/FormularioPreparacion.jsx
+
 import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { UNIDADES_PREDEFINIDAS, METODOS_COCCION, generarId } from '../utils/constantes';
 import './FormularioPreparacion.css';
 
-/**
- * Formulario para crear/editar preparaciones (platos/recetas)
- * Estilo kawaii profesional
- */
+
 export default function FormularioPreparacion({ 
   idUsuario = 'usuario-temporal', 
   onGuardado,

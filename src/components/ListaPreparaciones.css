@@ -33,7 +33,7 @@
 .lista-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -43,9 +43,12 @@
 
 .lista-header {
   display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
   margin-bottom: 2rem;
+  padding: 0 1rem;
 }
 
 .header-title {
@@ -88,6 +91,8 @@
 .search-container {
   position: relative;
   max-width: 500px;
+  width: 100%;
+  margin: 0 1rem 2rem 1rem;
 }
 
 .search-icon {
@@ -146,6 +151,51 @@
   color: var(--cheery);
 }
 
+/* Botón Nueva Preparación */
+.btn-crear-nuevo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-kawaii);
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.btn-crear-nuevo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s;
+}
+
+.btn-crear-nuevo:hover::before {
+  left: 100%;
+}
+
+.btn-crear-nuevo:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.icon-md {
+  width: 20px;
+  height: 20px;
+}
+
 /* ==========================================
    ESTADOS: LOADING Y EMPTY
    ========================================== */
@@ -201,6 +251,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
+  padding: 0 1rem;
 }
 
 .preparacion-card {
@@ -608,13 +659,14 @@
    ========================================== */
 
 @media (max-width: 1023px) and (min-width: 768px) {
+  .lista-header {
+    padding: 0 1rem;
+  }
+
   .preparaciones-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem;
-  }
-
-  .lista-container {
-    padding: 1.5rem 1rem;
+    padding: 0 1rem;
   }
 }
 
@@ -625,6 +677,13 @@
 @media (max-width: 767px) {
   .lista-container {
     padding: 1rem 0.75rem;
+  }
+
+  .lista-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    padding: 0;
   }
 
   .lista-title {
@@ -639,11 +698,17 @@
 
   .search-container {
     max-width: 100%;
+    margin: 0 0 2rem 0;
+  }
+
+  .btn-crear-nuevo {
+    display: none; /* Ocultar en móvil */
   }
 
   .preparaciones-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+    padding: 0;
   }
 
   .card-header {
