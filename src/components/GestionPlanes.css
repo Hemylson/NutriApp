@@ -1,0 +1,225 @@
+/* GestionPlanes.css - Estilo Kawaii Profesional */
+
+:root {
+  --cheery: #EB92A3;
+  --irresistible: #E3C0CF;
+  --grayLight: #F8F7F7;
+  --grayMedium: #CFC8C8;
+  --grayDark: #6D6562;
+  --white: #ffffff;
+  --deepNavy: #22223b;
+  
+  --shadow-kawaii: 0 4px 20px rgba(235, 146, 163, 0.15);
+  --shadow-medium: 0 8px 30px rgba(235, 146, 163, 0.2);
+  --shadow-soft: 0 2px 10px rgba(168, 207, 194, 0.1);
+  --shadow-hover: 0 8px 25px rgba(235, 146, 163, 0.25);
+  
+  --border-radius: 12px;
+  --border-radius-large: 20px;
+  
+  --gradient-primary: linear-gradient(135deg, var(--cheery) 0%, var(--irresistible) 100%);
+}
+
+/* Container principal */
+.gestion-planes-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 2rem 1rem;
+}
+
+/* Header de navegación */
+.header-navegacion {
+  max-width: 1400px;
+  margin: 0 auto 1.5rem;
+}
+
+.btn-volver {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--white);
+  border: 2px solid var(--grayMedium);
+  border-radius: var(--border-radius);
+  color: var(--grayDark);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-soft);
+}
+
+.btn-volver:hover {
+  background: var(--grayLight);
+  border-color: var(--cheery);
+  color: var(--cheery);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Botón móvil - oculto por defecto */
+.mobile-create-button {
+  display: none;
+}
+
+.btn-crear-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-kawaii);
+  margin-bottom: 1.5rem;
+}
+
+.btn-crear-mobile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Wrapper del planificador */
+.planificador-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.planificador-header-section {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background: var(--white);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(235, 146, 163, 0.1);
+}
+
+.planificador-main-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.planificador-main-subtitle {
+  font-size: 1.1rem;
+  color: var(--grayDark);
+  margin: 0;
+  opacity: 0.85;
+  line-height: 1.6;
+}
+
+.planificador-main-subtitle strong {
+  color: var(--cheery);
+  font-weight: 700;
+}
+
+/* Utilidades */
+.icon-sm {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+/* ==========================================
+   RESPONSIVE - TABLET
+   ========================================== */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .gestion-planes-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .planificador-header-section {
+    padding: 1.5rem;
+  }
+
+  .planificador-main-title {
+    font-size: 1.75rem;
+  }
+
+  .planificador-main-subtitle {
+    font-size: 1rem;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE - MÓVIL
+   ========================================== */
+
+@media (max-width: 767px) {
+  .gestion-planes-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .mobile-create-button {
+    display: block;
+    padding: 0 0.75rem;
+  }
+
+  .header-navegacion {
+    margin-bottom: 1rem;
+  }
+
+  .btn-volver {
+    width: 100%;
+    justify-content: center;
+    padding: 0.875rem 1rem;
+  }
+
+  .planificador-wrapper {
+    padding: 0;
+  }
+
+  .planificador-header-section {
+    padding: 1.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .planificador-main-title {
+    font-size: 1.5rem;
+  }
+
+  .planificador-main-subtitle {
+    font-size: 0.95rem;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE - MÓVIL PEQUEÑO
+   ========================================== */
+
+@media (max-width: 479px) {
+  .gestion-planes-container {
+    padding: 0.75rem 0.25rem;
+  }
+
+  .planificador-header-section {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .planificador-main-title {
+    font-size: 1.35rem;
+  }
+
+  .btn-crear-mobile,
+  .btn-volver {
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+  }
+}

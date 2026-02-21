@@ -1,0 +1,686 @@
+/* PlanificadorMenu.css - Estilo Kawaii Profesional */
+
+:root {
+  --cheery: #EB92A3;
+  --irresistible: #E3C0CF;
+  --inThePink: #F0BCC9;
+  --grayLight: #F8F7F7;
+  --grayMedium: #CFC8C8;
+  --grayDark: #6D6562;
+  --accentSage: #A8CFC2;
+  --accentBlue: #8CAFCF;
+  --white: #ffffff;
+  --deepNavy: #22223b;
+  
+  --shadow-kawaii: 0 4px 20px rgba(235, 146, 163, 0.15);
+  --shadow-medium: 0 8px 30px rgba(235, 146, 163, 0.2);
+  --shadow-soft: 0 2px 10px rgba(168, 207, 194, 0.1);
+  --shadow-hover: 0 8px 25px rgba(235, 146, 163, 0.25);
+  
+  --border-radius: 12px;
+  --border-radius-large: 20px;
+  
+  --gradient-primary: linear-gradient(135deg, var(--cheery) 0%, var(--irresistible) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--accentSage) 0%, var(--accentBlue) 100%);
+}
+
+/* ==========================================
+   CONTAINER PRINCIPAL
+   ========================================== */
+
+.planificador-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ==========================================
+   HEADER
+   ========================================== */
+
+.planificador-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  background: var(--gradient-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-kawaii);
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--white);
+}
+
+.planificador-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.planificador-subtitle {
+  font-size: 1rem;
+  color: var(--grayDark);
+  margin: 0.25rem 0 0 0;
+  opacity: 0.85;
+}
+
+/* ==========================================
+   CONFIGURACIÓN
+   ========================================== */
+
+.config-card {
+  background: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-soft);
+  border: 2px solid rgba(235, 146, 163, 0.1);
+}
+
+.config-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--deepNavy);
+  margin: 0 0 1.5rem 0;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.config-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--grayDark);
+}
+
+.config-input,
+.config-select {
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--grayMedium);
+  background: var(--grayLight);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--deepNavy);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.config-input:focus,
+.config-select:focus {
+  outline: none;
+  border-color: var(--cheery);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(235, 146, 163, 0.1);
+}
+
+/* ==========================================
+   GRID DEL PLAN
+   ========================================== */
+
+.plan-grid-card {
+  background: var(--white);
+  border-radius: var(--border-radius-large);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-soft);
+  border: 2px solid rgba(235, 146, 163, 0.1);
+  overflow-x: auto;
+}
+
+.plan-grid-wrapper {
+  min-width: 800px;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.plan-table thead {
+  background: var(--grayLight);
+}
+
+.plan-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 700;
+  color: var(--deepNavy);
+  border-bottom: 2px solid var(--grayMedium);
+  font-size: 0.95rem;
+}
+
+.col-tiempo {
+  width: 200px;
+  border-top-left-radius: var(--border-radius);
+}
+
+.col-opcion {
+  text-align: center;
+  min-width: 180px;
+}
+
+.row-tiempo {
+  transition: background 0.2s ease;
+}
+
+.row-tiempo:hover {
+  background: rgba(235, 146, 163, 0.02);
+}
+
+.cell-tiempo {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--grayLight);
+  border-right: 2px solid var(--grayMedium);
+  background: var(--white);
+}
+
+.tiempo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.tiempo-nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--deepNavy);
+}
+
+.tiempo-hora {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.85rem;
+  color: var(--grayDark);
+  font-weight: 500;
+}
+
+.cell-preparacion {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--grayLight);
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ==========================================
+   PREPARACIÓN ASIGNADA
+   ========================================== */
+
+.prep-asignada {
+  background: linear-gradient(135deg, rgba(168, 207, 194, 0.1), rgba(140, 175, 207, 0.1));
+  border: 2px solid var(--accentSage);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  position: relative;
+  transition: all 0.3s ease;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.prep-asignada:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.prep-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--deepNavy);
+  margin-bottom: 0.375rem;
+  line-height: 1.3;
+}
+
+.prep-info {
+  font-size: 0.8rem;
+  color: var(--grayDark);
+  font-weight: 500;
+}
+
+.btn-remover {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background: var(--cheery);
+  border: none;
+  border-radius: 50%;
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.btn-remover:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* ==========================================
+   BOTÓN AGREGAR
+   ========================================== */
+
+.btn-agregar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: 100%;
+  min-height: 80px;
+  padding: 1rem;
+  background: var(--grayLight);
+  border: 2px dashed var(--grayMedium);
+  border-radius: var(--border-radius);
+  color: var(--grayDark);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-agregar:hover {
+  background: rgba(168, 207, 194, 0.1);
+  border-color: var(--accentSage);
+  color: var(--accentSage);
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   ACCIONES DEL PLANIFICADOR
+   ========================================== */
+
+.planificador-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.btn-guardar-plan {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-kawaii);
+}
+
+.btn-guardar-plan:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+}
+
+.btn-guardar-plan:disabled {
+  background: var(--grayMedium);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ==========================================
+   MODAL SELECTOR
+   ========================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-selector {
+  background: var(--white);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--shadow-medium);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--grayLight);
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--deepNavy);
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--grayDark);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover {
+  background: rgba(235, 146, 163, 0.1);
+  color: var(--cheery);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* ==========================================
+   BÚSQUEDA EN MODAL
+   ========================================== */
+
+.search-prep {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--grayMedium);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  border: 2px solid var(--grayMedium);
+  background: var(--grayLight);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  color: var(--deepNavy);
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--cheery);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(235, 146, 163, 0.1);
+}
+
+/* ==========================================
+   LISTA DE PREPARACIONES
+   ========================================== */
+
+.prep-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.prep-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  padding: 1rem;
+  background: var(--white);
+  border: 2px solid rgba(235, 146, 163, 0.1);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.prep-item:hover {
+  border-color: var(--accentSage);
+  background: rgba(168, 207, 194, 0.05);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-soft);
+}
+
+.prep-item-nombre {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--deepNavy);
+}
+
+.prep-item-info {
+  font-size: 0.85rem;
+  color: var(--grayDark);
+  font-weight: 500;
+}
+
+.no-prep {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--grayMedium);
+}
+
+.no-prep p {
+  margin: 1rem 0 0 0;
+  font-size: 1rem;
+}
+
+/* ==========================================
+   UTILIDADES
+   ========================================== */
+
+.icon-xs {
+  width: 14px;
+  height: 14px;
+}
+
+.icon-sm {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-md {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-lg {
+  width: 48px;
+  height: 48px;
+}
+
+/* ==========================================
+   RESPONSIVE - TABLET
+   ========================================== */
+
+@media (max-width: 1023px) and (min-width: 768px) {
+  .planificador-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-grid-card {
+    padding: 1rem;
+  }
+}
+
+/* ==========================================
+   RESPONSIVE - MÓVIL
+   ========================================== */
+
+@media (max-width: 767px) {
+  .planificador-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .planificador-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .header-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .planificador-title {
+    font-size: 1.75rem;
+  }
+
+  .config-card {
+    padding: 1.25rem;
+  }
+
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .plan-grid-card {
+    padding: 0.75rem;
+    overflow-x: scroll;
+  }
+
+  .plan-table th,
+  .plan-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .col-tiempo {
+    width: 140px;
+  }
+
+  .col-opcion {
+    min-width: 140px;
+  }
+
+  .prep-asignada,
+  .btn-agregar {
+    min-height: 70px;
+    padding: 0.75rem;
+  }
+
+  .prep-nombre {
+    font-size: 0.875rem;
+  }
+
+  .tiempo-nombre {
+    font-size: 0.9rem;
+  }
+
+  .planificador-actions {
+    justify-content: stretch;
+  }
+
+  .btn-guardar-plan {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-selector {
+    max-height: 90vh;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 479px) {
+  .planificador-title {
+    font-size: 1.5rem;
+  }
+
+  .col-tiempo {
+    width: 120px;
+  }
+
+  .col-opcion {
+    min-width: 120px;
+  }
+
+  .prep-asignada,
+  .btn-agregar {
+    min-height: 60px;
+    font-size: 0.85rem;
+  }
+}
