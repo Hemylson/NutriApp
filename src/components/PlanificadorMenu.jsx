@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { Calendar, Clock, Plus, X, Save, Search, ChefHat } from 'lucide-react';
-import { TIEMPOS_COMIDA } from '../utils/constantes';
+import { TIEMPOS_COMIDA, INTERCAMBIOS_NUTRICIONALES } from '../utils/constantes';
 import './PlanificadorMenu.css';
 
 /**
@@ -305,6 +305,28 @@ export default function PlanificadorMenu({
                             <div className="prep-info">
                               {prep.ingredientes.length} ingredientes
                             </div>
+                            {prep.intercambios && Object.values(prep.intercambios).some(val => val > 0) && (
+                              <div className="prep-intercambios">
+                                {Object.entries(prep.intercambios)
+                                  .filter(([_, value]) => value > 0)
+                                  .map(([key, value]) => {
+                                    const intercambio = INTERCAMBIOS_NUTRICIONALES.find(i => i.id === key);
+                                    return intercambio ? (
+                                      <span 
+                                        key={key}
+                                        className="intercambio-badge-mini"
+                                        style={{
+                                          '--badge-color': intercambio.color,
+                                          '--badge-border': intercambio.borderColor
+                                        }}
+                                        title={intercambio.nombre}
+                                      >
+                                        {intercambio.iniciales}: {value}
+                                      </span>
+                                    ) : null;
+                                  })}
+                              </div>
+                            )}
                             <button
                               onClick={() => removerPreparacion(tiempo, opcion)}
                               className="btn-remover"
@@ -392,13 +414,45 @@ export default function PlanificadorMenu({
                     <button
                       key={prep.id}
                       onClick={() => asignarPreparacion(prep)}
-                      className="prep-item"
+                      className="prep-item-selector"
                     >
-                      <div className="prep-item-nombre">{prep.nombre}</div>
-                      <div className="prep-item-info">
-                        {prep.ingredientes.length} ingredientes
-                        {prep.metodoCoccion && ` • ${prep.metodoCoccion}`}
+                      <div className="prep-item-header">
+                        <div className="prep-item-nombre">{prep.nombre}</div>
+                        <div className="prep-item-meta">
+                          <span className="prep-meta-ingredientes">
+                            {prep.ingredientes.length} ing.
+                          </span>
+                          {prep.metodoCoccion && (
+                            <span className="prep-meta-metodo">
+                              {prep.metodoCoccion}
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      
+                      {/* Intercambios */}
+                      {prep.intercambios && Object.values(prep.intercambios).some(val => val > 0) && (
+                        <div className="prep-intercambios-list">
+                          {Object.entries(prep.intercambios)
+                            .filter(([_, value]) => value > 0)
+                            .map(([key, value]) => {
+                              const intercambio = INTERCAMBIOS_NUTRICIONALES.find(i => i.id === key);
+                              return intercambio ? (
+                                <span 
+                                  key={key}
+                                  className="intercambio-badge-selector"
+                                  style={{
+                                    '--badge-color': intercambio.color,
+                                    '--badge-border': intercambio.borderColor
+                                  }}
+                                  title={intercambio.nombre}
+                                >
+                                  {intercambio.iniciales}: {value}
+                                </span>
+                              ) : null;
+                            })}
+                        </div>
+                      )}
                     </button>
                   ))
                 )}

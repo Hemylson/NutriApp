@@ -1,11 +1,14 @@
-
+// src/components/FormularioPreparacion.jsx
 import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { UNIDADES_PREDEFINIDAS, METODOS_COCCION, generarId } from '../utils/constantes';
+import { UNIDADES_PREDEFINIDAS, METODOS_COCCION, INTERCAMBIOS_NUTRICIONALES, generarId } from '../utils/constantes';
 import './FormularioPreparacion.css';
 
-
+/**
+ * Formulario para crear/editar preparaciones (platos/recetas)
+ * Estilo kawaii profesional
+ */
 export default function FormularioPreparacion({ 
   idUsuario = 'usuario-temporal', 
   onGuardado,
@@ -20,6 +23,19 @@ export default function FormularioPreparacion({
   const [ingredientes, setIngredientes] = useState([
     { id: generarId(), alimento: '', cantidad: '', unidad: 'g' }
   ]);
+
+  // Estados de intercambios nutricionales
+  const [intercambios, setIntercambios] = useState({
+    lecheDescremada: '',
+    lecheSemidescremada: '',
+    lecheEntera: '',
+    vegetales: '',
+    frutas: '',
+    panesCereales: '',
+    proteinasMagras: '',
+    proteinasSemimagras: '',
+    grasas: ''
+  });
 
   // Estados de UI
   const [guardando, setGuardando] = useState(false);
@@ -46,6 +62,16 @@ export default function FormularioPreparacion({
           cantidad: ing.cantidad.toString(),
           unidad: ing.unidad
         })));
+      }
+
+      // Cargar intercambios si existen
+      if (preparacionEditar.intercambios) {
+        const intercambiosData = {};
+        Object.keys(preparacionEditar.intercambios).forEach(key => {
+          const value = preparacionEditar.intercambios[key];
+          intercambiosData[key] = value > 0 ? value.toString() : '';
+        });
+        setIntercambios(intercambiosData);
       }
     }
   }, [preparacionEditar]);
@@ -138,6 +164,17 @@ export default function FormularioPreparacion({
         metodoCoccion: metodoCoccion || '',
         notas: notas.trim(),
         acompanamiento: acompanamiento.trim(),
+        intercambios: {
+          lecheDescremada: parseFloat(intercambios.lecheDescremada) || 0,
+          lecheSemidescremada: parseFloat(intercambios.lecheSemidescremada) || 0,
+          lecheEntera: parseFloat(intercambios.lecheEntera) || 0,
+          vegetales: parseFloat(intercambios.vegetales) || 0,
+          frutas: parseFloat(intercambios.frutas) || 0,
+          panesCereales: parseFloat(intercambios.panesCereales) || 0,
+          proteinasMagras: parseFloat(intercambios.proteinasMagras) || 0,
+          proteinasSemimagras: parseFloat(intercambios.proteinasSemimagras) || 0,
+          grasas: parseFloat(intercambios.grasas) || 0
+        },
         actualizadoEn: Timestamp.now()
       };
 
@@ -196,6 +233,17 @@ export default function FormularioPreparacion({
     setIngredientes([
       { id: generarId(), alimento: '', cantidad: '', unidad: 'g' }
     ]);
+    setIntercambios({
+      lecheDescremada: '',
+      lecheSemidescremada: '',
+      lecheEntera: '',
+      vegetales: '',
+      frutas: '',
+      panesCereales: '',
+      proteinasMagras: '',
+      proteinasSemimagras: '',
+      grasas: ''
+    });
     setError('');
     setModoEdicion(false);
     setIdPreparacion(null);
@@ -351,6 +399,44 @@ export default function FormularioPreparacion({
             placeholder="Ej: Evitar exceso de sal"
             className="form-textarea"
           />
+        </div>
+
+        {/* Intercambios Nutricionales */}
+        <div className="intercambios-section">
+          <h3 className="intercambios-title">Intercambios Nutricionales</h3>
+          <p className="intercambios-subtitle">
+            Especifica las cantidades de cada grupo
+          </p>
+
+          <div className="intercambios-list">
+            {INTERCAMBIOS_NUTRICIONALES.map(intercambio => (
+              <div 
+                key={intercambio.id} 
+                className="intercambio-item-compact"
+                style={{
+                  '--intercambio-color': intercambio.color,
+                  '--intercambio-border': intercambio.borderColor
+                }}
+              >
+                <div className="intercambio-badge">
+                  {intercambio.iniciales}
+                </div>
+                <input
+                  type="number"
+                  value={intercambios[intercambio.id]}
+                  onChange={(e) => setIntercambios(prev => ({
+                    ...prev,
+                    [intercambio.id]: e.target.value
+                  }))}
+                  placeholder="0"
+                  step="0.5"
+                  min="0"
+                  className="intercambio-input-compact"
+                  title={intercambio.nombre}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Botones de acción */}

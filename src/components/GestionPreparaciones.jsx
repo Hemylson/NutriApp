@@ -77,39 +77,21 @@ export default function GestionPreparaciones({ idUsuario = 'usuario-temporal' })
 
       {/* Vista: Crear */}
       {vista === 'crear' && (
-        <div className="form-wrapper">
-          <div className="form-header-section">
-            <h2 className="form-main-title">Nueva Preparación</h2>
-            <p className="form-main-subtitle">
-              Crea un nuevo plato con sus ingredientes y método de cocción
-            </p>
-          </div>
-          
-          <FormularioPreparacion 
-            idUsuario={idUsuario}
-            onGuardado={handleGuardado}
-            onCancelar={handleCancelar}
-          />
-        </div>
+        <FormularioPreparacion 
+          idUsuario={idUsuario}
+          onGuardado={handleGuardado}
+          onCancelar={handleCancelar}
+        />
       )}
 
       {/* Vista: Editar */}
       {vista === 'editar' && preparacionEditar && (
-        <div className="form-wrapper">
-          <div className="form-header-section">
-            <h2 className="form-main-title">Editar Preparación</h2>
-            <p className="form-main-subtitle">
-              Modifica los datos de: <strong>{preparacionEditar.nombre}</strong>
-            </p>
-          </div>
-          
-          <FormularioPreparacion 
-            idUsuario={idUsuario}
-            preparacionEditar={preparacionEditar}
-            onGuardado={handleGuardado}
-            onCancelar={handleCancelar}
-          />
-        </div>
+        <FormularioPreparacion 
+          idUsuario={idUsuario}
+          preparacionEditar={preparacionEditar}
+          onGuardado={handleGuardado}
+          onCancelar={handleCancelar}
+        />
       )}
     </div>
   );

@@ -1,76 +1,131 @@
 // src/utils/constantes.js
 
 /**
- * Unidades de medida predefinidas
+ * Unidades de medida predefinidas para ingredientes
  */
 export const UNIDADES_PREDEFINIDAS = [
-  // Volumen
-  { valor: 'tz', etiqueta: 'Taza', categoria: 'volumen' },
-  { valor: 'ml', etiqueta: 'Mililitro', categoria: 'volumen' },
-  { valor: 'l', etiqueta: 'Litro', categoria: 'volumen' },
-  
-  // Peso
-  { valor: 'g', etiqueta: 'Gramo', categoria: 'peso' },
-  { valor: 'oz', etiqueta: 'Onza', categoria: 'peso' },
-  { valor: 'lb', etiqueta: 'Libra', categoria: 'peso' },
-  
-  // Cubiertos
-  { valor: 'cda', etiqueta: 'Cucharada', categoria: 'cubiertos' },
-  { valor: 'cdita', etiqueta: 'Cucharadita', categoria: 'cubiertos' },
-  
-  // Unidades
-  { valor: 'unidad', etiqueta: 'Unidad', categoria: 'unidad' },
-  { valor: 'rebanada', etiqueta: 'Rebanada', categoria: 'unidad' },
-  { valor: 'trozo', etiqueta: 'Trozo', categoria: 'unidad' },
+  { valor: 'g', etiqueta: 'Gramos (g)' },
+  { valor: 'kg', etiqueta: 'Kilogramos (kg)' },
+  { valor: 'ml', etiqueta: 'Mililitros (ml)' },
+  { valor: 'l', etiqueta: 'Litros (l)' },
+  { valor: 'oz', etiqueta: 'Onzas (oz)' },
+  { valor: 'lb', etiqueta: 'Libras (lb)' },
+  { valor: 'taza', etiqueta: 'Taza' },
+  { valor: 'cucharada', etiqueta: 'Cucharada' },
+  { valor: 'cucharadita', etiqueta: 'Cucharadita' },
+  { valor: 'pizca', etiqueta: 'Pizca' },
+  { valor: 'unidad', etiqueta: 'Unidad' }
 ];
 
 /**
- * Métodos de cocción comunes
+ * Métodos de cocción disponibles
  */
 export const METODOS_COCCION = [
-  'Al horno',
-  'A la plancha',
-  'Hervido',
   'Al vapor',
-  'Crudo',
-  'Salteado',
-  'Guisado',
-  'Asado',
+  'Hervido',
+  'A la plancha',
+  'Al horno',
   'Frito',
-  'Licuado',
-  'Horneado',
+  'Salteado',
+  'Asado',
+  'Guisado',
   'A la parrilla',
+  'Horneado'
 ];
 
 /**
- * Tiempos de comida
+ * Tiempos de comida para planes nutricionales
  */
-export const TIEMPOS_COMIDA = {
-  desayuno: 'Desayuno',
-  refrigerioAM: 'Refrigerio AM',
-  almuerzo: 'Almuerzo',
-  refrigerioPM: 'Refrigerio PM',
-  cena: 'Cena'
+export const TIEMPOS_COMIDA = [
+  'Desayuno',
+  'Refrigerio AM',
+  'Almuerzo',
+  'Refrigerio PM',
+  'Cena'
+];
+
+/**
+ * Tipos de intercambios nutricionales con sus colores
+ */
+export const INTERCAMBIOS_NUTRICIONALES = [
+  { 
+    id: 'lecheDescremada',
+    nombre: 'Leche descremada',
+    iniciales: 'LD',
+    color: '#E3F2FD', // Azul claro pastel
+    borderColor: '#90CAF9'
+  },
+  { 
+    id: 'lecheSemidescremada',
+    nombre: 'Leche semidescremada',
+    iniciales: 'LS',
+    color: '#BBDEFB', // Azul medio pastel
+    borderColor: '#64B5F6'
+  },
+  { 
+    id: 'lecheEntera',
+    nombre: 'Leche entera',
+    iniciales: 'LE',
+    color: '#90CAF9', // Azul pastel
+    borderColor: '#42A5F5'
+  },
+  { 
+    id: 'vegetales',
+    nombre: 'Vegetales',
+    iniciales: 'V',
+    color: '#E8F5E9', // Verde claro pastel
+    borderColor: '#81C784'
+  },
+  { 
+    id: 'frutas',
+    nombre: 'Frutas',
+    iniciales: 'F',
+    color: '#FFF9C4', // Amarillo pastel
+    borderColor: '#FFD54F'
+  },
+  { 
+    id: 'panesCereales',
+    nombre: 'Panes y cereales',
+    iniciales: 'PC',
+    color: '#FFE0B2', // Naranja/dorado pastel
+    borderColor: '#FFB74D'
+  },
+  { 
+    id: 'proteinasMagras',
+    nombre: 'Proteínas magras',
+    iniciales: 'PM',
+    color: '#FCE4EC', // Rosa claro pastel
+    borderColor: '#F48FB1'
+  },
+  { 
+    id: 'proteinasSemimagras',
+    nombre: 'Proteínas semimagras',
+    iniciales: 'PS',
+    color: '#F8BBD0', // Rosa pastel
+    borderColor: '#EC407A'
+  },
+  { 
+    id: 'grasas',
+    nombre: 'Grasas',
+    iniciales: 'G',
+    color: '#FFF8E1', // Amarillo/mostaza pastel
+    borderColor: '#FFC107'
+  }
+];
+
+/**
+ * Recomendaciones nutricionales predeterminadas
+ */
+export const RECOMENDACIONES_PREDETERMINADAS = {
+  calorias: 2000,
+  proteinas: 50,
+  carbohidratos: 275,
+  grasas: 65
 };
 
 /**
- * Recomendaciones predeterminadas para los planes
- */
-export const RECOMENDACIONES_PREDETERMINADAS = [
-  'No se incluyen en las verduras: papa, yuca, camote, elote. Estos se contabilizan como carbohidratos.',
-  'Se recomienda no utilizar aderezos de tipo mayonesa, salsa de tomate industrial, pepinesa, etc. Si puede utilizar vinagre y hierbas aromáticas para dar sabor a sus comidas.',
-  'Evite el consumo de sal y productos que la contengan (cubitos, sazonadores, consomés, sopas deshidratadas, enlatados, etc.)',
-  'Es importante no omitir ningún tiempo de comida. Y realizar actividad física, como mínimo 30 minutos diarios.',
-  'Puede dar sabor a las comidas con hierbas aromáticas, ajo, apio, cúrcuma, comino, pimienta, etc.',
-  'Elige carbohidratos complejos y ricos en fibra como avena, legumbres, frutas enteras y vegetales sin almidón.',
-  'Prefiera frutas como la manzana, pera, kiwi, fresas y guayaba. Evita jugos, uvas, plátano muy maduro y frutas deshidratadas.',
-  'Caminar 20–30 minutos al día, respetando su propia tolerancia.',
-  'Manténgase hidratada, consuma alrededor de 2 litros de agua por día.',
-];
-
-/**
- * Genera un ID único para ingredientes
+ * Genera un ID único
  */
 export function generarId() {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
