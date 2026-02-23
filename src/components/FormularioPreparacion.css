@@ -609,11 +609,11 @@
 
 @media (max-width: 768px) {
   .preparacion-container {
-    padding: 1rem 0.5rem;
+    padding: 1rem 0.75rem;
   }
   
   .preparacion-form {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
   }
   
   .preparacion-title {
@@ -624,6 +624,29 @@
     width: 70px;
     height: 70px;
     font-size: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+
+  .metodos-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  .metodo-card {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+    box-sizing: border-box;
   }
   
   .ingredientes-header {
@@ -639,19 +662,43 @@
   
   .ingrediente-fields {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
   
   .ingrediente-field.alimento {
     grid-column: 1;
   }
+
+  .ingrediente-field {
+    width: 100%;
+  }
   
   .ingrediente-field.cantidad input,
   .ingrediente-field.unidad select {
     width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ingrediente-field input,
+  .ingrediente-field select {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+  }
+
+  .ingrediente-item {
+    padding: 1rem 0.875rem;
   }
   
   .form-actions {
     flex-direction: column-reverse;
+  }
+
+  .btn,
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .btn-secondary {
@@ -692,18 +739,31 @@
 }
 
 @media (max-width: 480px) {
+  .preparacion-container {
+    padding: 0.75rem 0.5rem;
+  }
+
   .preparacion-form {
-    padding: 1rem;
+    padding: 1rem 0.875rem;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.9rem;
+    box-sizing: border-box;
   }
   
   .metodos-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
+    gap: 0.5rem;
   }
 
   .metodo-card {
-    padding: 0.875rem 0.625rem;
-    font-size: 0.85rem;
+    padding: 0.625rem 0.5rem;
+    font-size: 0.8rem;
+    box-sizing: border-box;
   }
 
   .metodos-grid {
@@ -717,6 +777,14 @@
 
   .ingrediente-item {
     padding: 0.75rem;
+    box-sizing: border-box;
+  }
+
+  .ingrediente-field input,
+  .ingrediente-field select {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+    box-sizing: border-box;
   }
   
   .ingrediente-number {
