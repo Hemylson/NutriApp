@@ -512,6 +512,33 @@ ${Object.entries(mealTimes).map(([mealId, meal]) => {
     setShowTooltip(null);
   }, []);
 
+  const handleCrearPlan = useCallback(() => {
+  const datosNutricionales = {
+    nombrePaciente: `Paciente (${datosPersonales.edad} años)`,
+    edad: datosPersonales.edad,
+    peso: datosPersonales.peso,
+    talla: datosPersonales.talla,
+    genero: datosPersonales.genero,
+    calorias: Math.round(totalesNutricionales.totalKcal),
+    proteinas: Math.round(totalesNutricionales.totalChon),
+    carbohidratos: Math.round(totalesNutricionales.totalCho),
+    grasas: Math.round(totalesNutricionales.totalCooh),
+    porcentajeProteinas: macros.proteinasPorcentaje,
+    porcentajeCarbohidratos: macros.carbohidratosPorcentaje,
+    porcentajeGrasas: macros.grasasPorcentaje,
+    imc: datosPersonales.imc,
+    pesoIdeal: datosPersonales.pesoIdeal,
+    get: datosPersonales.get
+  };
+
+  localStorage.setItem('datosNutricionales', JSON.stringify(datosNutricionales));
+  setCopiedText('✅ Redirigiendo al planificador...');
+  
+  setTimeout(() => {
+    window.location.href = '/gestionar-planes';
+  }, 500);
+}, [datosPersonales, totalesNutricionales, macros]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -1297,10 +1324,10 @@ ${Object.entries(mealTimes).map(([mealId, meal]) => {
         </button>
         <button 
           className="nav-button finish" 
-          onClick={() => handleConfirmAction('finish')}
-          aria-label="Finalizar plan nutricional"
+          onClick={handleCrearPlan}
+          aria-label="Crear plan de alimentación"
         >
-          Finalizar Plan
+          🍽️ Crear Plan de Alimentación
         </button>
       </div>
 

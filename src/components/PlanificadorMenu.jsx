@@ -13,7 +13,8 @@ export default function PlanificadorMenu({
   idUsuario = 'usuario-temporal',
   planEditar = null,
   onGuardado,
-  onCancelar
+  onCancelar,
+  datosNutricionales = null // Datos desde la calculadora
 }) {
   // Estados del plan
   const [nombrePaciente, setNombrePaciente] = useState('');
@@ -36,6 +37,18 @@ export default function PlanificadorMenu({
   const [celdaActiva, setCeldaActiva] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idPlan, setIdPlan] = useState(null);
+
+  /**
+   * Carga datos nutricionales si vienen de la calculadora
+   */
+  useEffect(() => {
+    if (datosNutricionales) {
+      // Pre-cargar nombre del paciente si viene
+      if (datosNutricionales.nombrePaciente) {
+        setNombrePaciente(datosNutricionales.nombrePaciente);
+      }
+    }
+  }, [datosNutricionales]);
 
   /**
    * Carga los datos del plan a editar
@@ -235,6 +248,31 @@ export default function PlanificadorMenu({
           </p>
         </div>
       </div>
+
+      {/* Card de requerimientos nutricionales (si vienen de calculadora) */}
+      {datosNutricionales && (
+        <div className="requerimientos-card">
+          <h3 className="requerimientos-title">🎯 Requerimientos Nutricionales</h3>
+          <div className="requerimientos-grid">
+            <div className="req-item">
+              <span className="req-label">Calorías</span>
+              <span className="req-value">{datosNutricionales.calorias} kcal</span>
+            </div>
+            <div className="req-item">
+              <span className="req-label">Proteínas</span>
+              <span className="req-value">{datosNutricionales.proteinas} g</span>
+            </div>
+            <div className="req-item">
+              <span className="req-label">Carbohidratos</span>
+              <span className="req-value">{datosNutricionales.carbohidratos} g</span>
+            </div>
+            <div className="req-item">
+              <span className="req-label">Grasas</span>
+              <span className="req-value">{datosNutricionales.grasas} g</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Configuración del plan */}
       <div className="config-card">

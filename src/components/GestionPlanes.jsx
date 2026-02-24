@@ -1,5 +1,5 @@
 // src/components/GestionPlanes.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PlanificadorMenu from './PlanificadorMenu.jsx';
 import ListaPlanes from './ListaPlanes.jsx';
 import { ArrowLeft } from 'lucide-react';
@@ -12,6 +12,26 @@ export default function GestionPlanes({ idUsuario = 'usuario-temporal' }) {
   const [vista, setVista] = useState('lista'); // 'lista' | 'crear' | 'editar'
   const [planEditar, setPlanEditar] = useState(null);
   const [recargarLista, setRecargarLista] = useState(0);
+  const [datosNutricionales, setDatosNutricionales] = useState(null);
+
+  /**
+   * Lee datos nutricionales de localStorage al cargar
+   */
+  useEffect(() => {
+    const datos = localStorage.getItem('datosNutricionales');
+    if (datos) {
+      try {
+        const datosParseados = JSON.parse(datos);
+        setDatosNutricionales(datosParseados);
+        setVista('crear'); // Ir directo a crear plan
+        
+        // Limpiar después de leer
+        localStorage.removeItem('datosNutricionales');
+      } catch (error) {
+        console.error('Error al parsear datos nutricionales:', error);
+      }
+    }
+  }, []);
 
   /**
    * Maneja la creación/actualización exitosa de un plan
@@ -19,6 +39,7 @@ export default function GestionPlanes({ idUsuario = 'usuario-temporal' }) {
   const handleGuardado = () => {
     setVista('lista');
     setPlanEditar(null);
+    setDatosNutricionales(null); // Limpiar datos nutricionales
     setRecargarLista(prev => prev + 1);
   };
 
@@ -87,6 +108,7 @@ export default function GestionPlanes({ idUsuario = 'usuario-temporal' }) {
           
           <PlanificadorMenu 
             idUsuario={idUsuario}
+            datosNutricionales={datosNutricionales}
             onGuardado={handleGuardado}
             onCancelar={handleCancelar}
           />
