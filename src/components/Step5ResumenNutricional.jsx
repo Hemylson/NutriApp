@@ -100,9 +100,12 @@ const Step5ResumenNutricional = ({
   onPrev = () => console.log('Previous step'),
   onFinish = () => console.log('Plan finished')
 }) => {
+  console.log('Step5 recibió formData:', formData);
+  console.log('formData.intercambios:', formData.intercambios);
   // Estados existentes
   const [activeTab, setActiveTab] = useState('resumen');
   const [copiedText, setCopiedText] = useState('');
+  const [nombrePaciente, setNombrePaciente] = useState('');
   
   // Nuevos estados para mejoras
   const [loadingStates, setLoadingStates] = useState({
@@ -513,31 +516,35 @@ ${Object.entries(mealTimes).map(([mealId, meal]) => {
   }, []);
 
   const handleCrearPlan = useCallback(() => {
-  const datosNutricionales = {
-    nombrePaciente: `Paciente (${datosPersonales.edad} años)`,
-    edad: datosPersonales.edad,
-    peso: datosPersonales.peso,
-    talla: datosPersonales.talla,
-    genero: datosPersonales.genero,
-    calorias: Math.round(totalesNutricionales.totalKcal),
-    proteinas: Math.round(totalesNutricionales.totalChon),
-    carbohidratos: Math.round(totalesNutricionales.totalCho),
-    grasas: Math.round(totalesNutricionales.totalCooh),
-    porcentajeProteinas: macros.proteinasPorcentaje,
-    porcentajeCarbohidratos: macros.carbohidratosPorcentaje,
-    porcentajeGrasas: macros.grasasPorcentaje,
-    imc: datosPersonales.imc,
-    pesoIdeal: datosPersonales.pesoIdeal,
-    get: datosPersonales.get
-  };
+    const datosNutricionales = {
+      nombrePaciente: nombrePaciente.trim() || `Paciente (${datosPersonales.edad} años)`,
+      edad: datosPersonales.edad,
+      peso: datosPersonales.peso,
+      talla: datosPersonales.talla,
+      genero: datosPersonales.genero,
+      calorias: Math.round(totalesNutricionales.totalKcal),
+      proteinas: Math.round(totalesNutricionales.totalChon),
+      carbohidratos: Math.round(totalesNutricionales.totalCho),
+      grasas: Math.round(totalesNutricionales.totalCooh),
+      porcentajeProteinas: macros.proteinasPorcentaje,
+      porcentajeCarbohidratos: macros.carbohidratosPorcentaje,
+      porcentajeGrasas: macros.grasasPorcentaje,
+      imc: datosPersonales.imc,
+      pesoIdeal: datosPersonales.pesoIdeal,
+      get: datosPersonales.get,
+      
+      // ✅ SOLUCIÓN
+      intercambios: formData.intercambios  // ← USA ESTO
+    };
 
-  localStorage.setItem('datosNutricionales', JSON.stringify(datosNutricionales));
-  setCopiedText('✅ Redirigiendo al planificador...');
-  
-  setTimeout(() => {
-    window.location.href = '/gestionar-planes';
-  }, 500);
-}, [datosPersonales, totalesNutricionales, macros]);
+    localStorage.setItem('datosNutricionales', JSON.stringify(datosNutricionales));
+    setCopiedText('✅ Redirigiendo al planificador...');
+    
+    setTimeout(() => {
+      window.location.href = '/gestionar-planes';
+    }, 500);
+  }, [datosPersonales, totalesNutricionales, macros, nombrePaciente, formData]);
+  // ↑
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -1188,6 +1195,24 @@ ${Object.entries(mealTimes).map(([mealId, meal]) => {
             Atajos de teclado: Ctrl+P (imprimir), Ctrl+S (descargar), Ctrl+K (compartir)
           </small>
         </p>
+         {/* Campo nombre del paciente */}
+        <div className="patient-name-field">
+          <label htmlFor="nombre-paciente" className="patient-name-label">
+            Nombre del Paciente (opcional)
+          </label>
+          <input
+            id="nombre-paciente"
+            type="text"
+            value={nombrePaciente}
+            onChange={(e) => setNombrePaciente(e.target.value)}
+            placeholder="Ej: María González"
+            className="patient-name-input"
+            maxLength={100}
+          />
+          <p className="patient-name-hint">
+            Este nombre se usará en el plan de alimentación
+          </p>
+        </div>
       </div>
 
       {/* Action Buttons con estados de loading */}

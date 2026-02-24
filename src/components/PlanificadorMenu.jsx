@@ -16,6 +16,12 @@ export default function PlanificadorMenu({
   onCancelar,
   datosNutricionales = null // Datos desde la calculadora
 }) {
+  // 🔍 DEBUG: Verificar qué llega
+  console.log('=== PLANIFICADOR RECIBIÓ ===');
+  console.log('datosNutricionales:', datosNutricionales);
+  console.log('intercambios:', datosNutricionales?.intercambios);
+  console.log('===========================');
+
   // Estados del plan
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [tiemposSeleccionados, setTiemposSeleccionados] = useState([
@@ -251,27 +257,209 @@ export default function PlanificadorMenu({
 
       {/* Card de requerimientos nutricionales (si vienen de calculadora) */}
       {datosNutricionales && (
-        <div className="requerimientos-card">
-          <h3 className="requerimientos-title">🎯 Requerimientos Nutricionales</h3>
-          <div className="requerimientos-grid">
-            <div className="req-item">
-              <span className="req-label">Calorías</span>
-              <span className="req-value">{datosNutricionales.calorias} kcal</span>
-            </div>
-            <div className="req-item">
-              <span className="req-label">Proteínas</span>
-              <span className="req-value">{datosNutricionales.proteinas} g</span>
-            </div>
-            <div className="req-item">
-              <span className="req-label">Carbohidratos</span>
-              <span className="req-value">{datosNutricionales.carbohidratos} g</span>
-            </div>
-            <div className="req-item">
-              <span className="req-label">Grasas</span>
-              <span className="req-value">{datosNutricionales.grasas} g</span>
+        <>
+          {/* 🔍 DEBUG TEMPORAL - Remover después */}
+          <div style={{
+            background: '#fff3cd',
+            border: '2px solid #ffc107',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '1rem',
+            fontSize: '0.9rem'
+          }}>
+            <strong>🔍 DEBUG - Datos Recibidos:</strong>
+            <div style={{ marginTop: '0.5rem' }}>
+              <div>✓ Calorías: {datosNutricionales.calorias}</div>
+              <div>✓ Proteínas: {datosNutricionales.proteinas}g</div>
+              <div>✓ ¿Tiene intercambios?: {datosNutricionales.intercambios ? 'SÍ' : 'NO'}</div>
+              {datosNutricionales.intercambios && (
+                <details style={{ marginTop: '0.5rem' }}>
+                  <summary style={{ cursor: 'pointer', fontWeight: 'bold' }}>
+                    Ver estructura completa de intercambios
+                  </summary>
+                  <pre style={{ 
+                    overflow: 'auto', 
+                    maxHeight: '300px',
+                    background: '#f8f9fa',
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    fontSize: '0.75rem',
+                    marginTop: '0.5rem'
+                  }}>
+                    {JSON.stringify(datosNutricionales.intercambios, null, 2)}
+                  </pre>
+                </details>
+              )}
             </div>
           </div>
-        </div>
+
+          <div className="requerimientos-card">
+            <h3 className="requerimientos-title">🎯 Requerimientos Nutricionales</h3>
+            <div className="requerimientos-grid">
+              <div className="req-item">
+                <span className="req-label">Calorías</span>
+                <span className="req-value">{datosNutricionales.calorias} kcal</span>
+              </div>
+              <div className="req-item">
+                <span className="req-label">Proteínas</span>
+                <span className="req-value">{datosNutricionales.proteinas} g</span>
+              </div>
+              <div className="req-item">
+                <span className="req-label">Carbohidratos</span>
+                <span className="req-value">{datosNutricionales.carbohidratos} g</span>
+              </div>
+              <div className="req-item">
+                <span className="req-label">Grasas</span>
+                <span className="req-value">{datosNutricionales.grasas} g</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Card de intercambios nutricionales */}
+          {datosNutricionales.intercambios && (
+            <div className="intercambios-calculadora-card">
+              <h3 className="intercambios-calculadora-title">
+                📊 Sistema de Intercambios
+              </h3>
+              <p className="intercambios-calculadora-subtitle">
+                Utiliza estos intercambios como guía al seleccionar preparaciones
+              </p>
+              <div className="intercambios-badges-list">
+                {/* Lácteos */}
+                {Object.entries(datosNutricionales.intercambios.lacteos || {}).map(([key, data]) => {
+                  if (data.intercambios > 0) {
+                    const iniciales = {
+                      descremados: 'LD',
+                      semidescremados: 'LS',
+                      enteros: 'LE'
+                    };
+                    const colores = {
+                      descremados: { bg: '#E3F2FD', border: '#90CAF9' },
+                      semidescremados: { bg: '#BBDEFB', border: '#64B5F6' },
+                      enteros: { bg: '#90CAF9', border: '#42A5F5' }
+                    };
+                    return (
+                      <span 
+                        key={key}
+                        className="intercambio-badge-compact"
+                        style={{
+                          '--badge-bg': colores[key].bg,
+                          '--badge-border': colores[key].border
+                        }}
+                        title={`Leche ${key}: ${data.intercambios} intercambios`}
+                      >
+                        {iniciales[key]}: {data.intercambios}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                {/* Vegetales */}
+                {datosNutricionales.intercambios.verduras?.verduras?.intercambios > 0 && (
+                  <span 
+                    className="intercambio-badge-compact"
+                    style={{
+                      '--badge-bg': '#E8F5E9',
+                      '--badge-border': '#81C784'
+                    }}
+                    title={`Vegetales: ${datosNutricionales.intercambios.verduras.verduras.intercambios} intercambios`}
+                  >
+                    V: {datosNutricionales.intercambios.verduras.verduras.intercambios}
+                  </span>
+                )}
+
+                {/* Frutas */}
+                {datosNutricionales.intercambios.frutas?.frutas?.intercambios > 0 && (
+                  <span 
+                    className="intercambio-badge-compact"
+                    style={{
+                      '--badge-bg': '#FFF9C4',
+                      '--badge-border': '#FFD54F'
+                    }}
+                    title={`Frutas: ${datosNutricionales.intercambios.frutas.frutas.intercambios} intercambios`}
+                  >
+                    F: {datosNutricionales.intercambios.frutas.frutas.intercambios}
+                  </span>
+                )}
+
+                {/* Cereales */}
+                {Object.entries(datosNutricionales.intercambios.cereales || {}).map(([key, data]) => {
+                  if (data.intercambios > 0) {
+                    const iniciales = {
+                      panesCereales: 'PC',
+                      conGrasa: 'CG',
+                      sinGrasa: 'CSG'
+                    };
+                    const nombres = {
+                      panesCereales: 'Panes y Cereales',
+                      conGrasa: 'Cereales con Grasa',
+                      sinGrasa: 'Cereales sin Grasa'
+                    };
+                    return (
+                      <span 
+                        key={key}
+                        className="intercambio-badge-compact"
+                        style={{
+                          '--badge-bg': '#FFE0B2',
+                          '--badge-border': '#FFB74D'
+                        }}
+                        title={`${nombres[key]}: ${data.intercambios} intercambios`}
+                      >
+                        {iniciales[key]}: {data.intercambios}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                {/* Proteínas */}
+                {Object.entries(datosNutricionales.intercambios.proteinas || {}).map(([key, data]) => {
+                  if (data.intercambios > 0) {
+                    const iniciales = {
+                      magra: 'PM',
+                      mediana: 'PS',
+                      alta: 'PA'
+                    };
+                    const nombres = {
+                      magra: 'Proteína Magra',
+                      mediana: 'Proteína Semimagra',
+                      alta: 'Proteína Alta en Grasa'
+                    };
+                    return (
+                      <span 
+                        key={key}
+                        className="intercambio-badge-compact"
+                        style={{
+                          '--badge-bg': '#FCE4EC',
+                          '--badge-border': '#F48FB1'
+                        }}
+                        title={`${nombres[key]}: ${data.intercambios} intercambios`}
+                      >
+                        {iniciales[key]}: {data.intercambios}
+                      </span>
+                    );
+                  }
+                  return null;
+                })}
+
+                {/* Grasas */}
+                {datosNutricionales.intercambios.grasas?.grasas?.intercambios > 0 && (
+                  <span 
+                    className="intercambio-badge-compact"
+                    style={{
+                      '--badge-bg': '#FFF8E1',
+                      '--badge-border': '#FFC107'
+                    }}
+                    title={`Grasas: ${datosNutricionales.intercambios.grasas.grasas.intercambios} intercambios`}
+                  >
+                    G: {datosNutricionales.intercambios.grasas.grasas.intercambios}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Configuración del plan */}

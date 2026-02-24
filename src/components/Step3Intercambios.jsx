@@ -159,6 +159,8 @@ const Step3Intercambios = ({
     return valores[categoria]?.[subcategoria] || { cho: 0, chon: 0, cooh: 0, kcal: 0 };
   };
 
+  
+
   // Calcular totales
   const calcularTotales = useCallback(() => {
     let totalCho = 0, totalChon = 0, totalCooh = 0, totalKcal = 0;
@@ -820,6 +822,7 @@ const Step3Intercambios = ({
             <Table style={{ width: '16px', height: '16px' }} />
             Tabla
           </button>
+          
         </div>
       </div>
 
