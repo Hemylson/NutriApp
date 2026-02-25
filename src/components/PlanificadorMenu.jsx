@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { collection, addDoc, updateDoc, doc, getDocs, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { Calendar, Clock, Plus, X, Save, Search, ChefHat } from 'lucide-react';
+import { Calendar, Clock, Plus, X, Save, Search, ChefHat, Download } from 'lucide-react';
 import { TIEMPOS_COMIDA, INTERCAMBIOS_NUTRICIONALES } from '../utils/constantes';
 import './PlanificadorMenu.css';
 
@@ -39,6 +39,7 @@ export default function PlanificadorMenu({
   const [busquedaPrep, setBusquedaPrep] = useState('');
   const [preparacionesFiltradas, setPreparacionesFiltradas] = useState([]);
   const [guardando, setGuardando] = useState(false);
+  const [exportando, setExportando] = useState(false);
   const [mostrarSelectorPrep, setMostrarSelectorPrep] = useState(false);
   const [celdaActiva, setCeldaActiva] = useState(null);
   const [modoEdicion, setModoEdicion] = useState(false);
@@ -129,6 +130,280 @@ export default function PlanificadorMenu({
     );
     setPreparacionesFiltradas(filtradas);
   }, [busquedaPrep, preparaciones]);
+
+  /**
+   * Calcula los intercambios totales del plan actual
+   */
+  const calcularIntercambiosDelPlan = () => {
+    const totales = {
+      lecheDescremada: 0,
+      lecheSemidescremada: 0,
+      lecheEntera: 0,
+      vegetales: 0,
+      frutas: 0,
+      panesCereales: 0,
+      cerealesConGrasa: 0,
+      cerealesSinGrasa: 0,
+      proteinasMagras: 0,
+      proteinasSemimagras: 0,
+      proteinasAltas: 0,
+      grasas: 0
+    };
+
+    // Recorrer todo el grid del plan
+    Object.values(gridPlan).forEach(tiempoData => {
+      Object.values(tiempoData).forEach(prep => {
+        if (prep && prep.intercambios) {
+          // Sumar intercambios de cada preparación
+          Object.entries(prep.intercambios).forEach(([key, value]) => {
+            const cantidad = parseFloat(value) || 0;
+            if (cantidad > 0 && totales.hasOwnProperty(key)) {
+              totales[key] += cantidad;
+            }
+          });
+        }
+      });
+    });
+
+    return totales;
+  };
+
+  /**
+   * Compara intercambios del plan vs objetivo
+   */
+  const compararIntercambios = () => {
+    if (!datosNutricionales?.intercambios) return [];
+
+    const actuales = calcularIntercambiosDelPlan();
+    const comparacion = [];
+
+    // Mapeo de intercambios de calculadora a sistema del planificador
+    const mapeo = {
+      'lacteos.descremados': { key: 'lecheDescremada', nombre: 'Leche Descremada', sigla: 'LD', color: '#E3F2FD', border: '#90CAF9' },
+      'lacteos.semidescremados': { key: 'lecheSemidescremada', nombre: 'Leche Semidescremada', sigla: 'LS', color: '#BBDEFB', border: '#64B5F6' },
+      'lacteos.enteros': { key: 'lecheEntera', nombre: 'Leche Entera', sigla: 'LE', color: '#90CAF9', border: '#42A5F5' },
+      'verduras.verduras': { key: 'vegetales', nombre: 'Vegetales', sigla: 'V', color: '#E8F5E9', border: '#81C784' },
+      'frutas.frutas': { key: 'frutas', nombre: 'Frutas', sigla: 'F', color: '#FFF9C4', border: '#FFD54F' },
+      'cereales.panesCereales': { key: 'panesCereales', nombre: 'Panes y Cereales', sigla: 'PC', color: '#FFE0B2', border: '#FFB74D' },
+      'cereales.conGrasa': { key: 'cerealesConGrasa', nombre: 'Cereales con Grasa', sigla: 'CG', color: '#FFE0B2', border: '#FFB74D' },
+      'cereales.sinGrasa': { key: 'cerealesSinGrasa', nombre: 'Cereales sin Grasa', sigla: 'CSG', color: '#FFE0B2', border: '#FFB74D' },
+      'proteinas.magra': { key: 'proteinasMagras', nombre: 'Proteína Magra', sigla: 'PM', color: '#FCE4EC', border: '#F48FB1' },
+      'proteinas.mediana': { key: 'proteinasSemimagras', nombre: 'Proteína Semimagra', sigla: 'PS', color: '#F8BBD0', border: '#EC407A' },
+      'proteinas.alta': { key: 'proteinasAltas', nombre: 'Proteína Alta', sigla: 'PA', color: '#FCE4EC', border: '#F48FB1' },
+      'grasas.grasas': { key: 'grasas', nombre: 'Grasas', sigla: 'G', color: '#FFF8E1', border: '#FFC107' }
+    };
+
+    // Procesar cada grupo
+    Object.entries(mapeo).forEach(([path, info]) => {
+      const [categoria, subcategoria] = path.split('.');
+      const objetivo = datosNutricionales.intercambios?.[categoria]?.[subcategoria]?.intercambios || 0;
+      const actual = actuales[info.key] || 0;
+
+      if (objetivo > 0) {
+        const diferencia = actual - objetivo;
+        const porcentaje = objetivo > 0 ? Math.round((actual / objetivo) * 100) : 0;
+        
+        let estado = 'correcto';
+        if (actual < objetivo) estado = 'falta';
+        if (actual > objetivo) estado = 'sobra';
+
+        comparacion.push({
+          ...info,
+          objetivo,
+          actual,
+          diferencia,
+          porcentaje,
+          estado
+        });
+      }
+    });
+
+    return comparacion;
+  };
+
+  // Recalcular cuando cambie el grid
+  const comparacionIntercambios = compararIntercambios();
+
+  /**
+   * Calcula los macronutrientes totales del plan
+   */
+  const calcularMacrosDelPlan = () => {
+    let totalCalorias = 0;
+    let totalProteinas = 0;
+    let totalCarbohidratos = 0;
+    let totalGrasas = 0;
+
+    // Valores nutricionales por intercambio (promedios estándar)
+    const valoresPorIntercambio = {
+      lecheDescremada: { kcal: 80, prot: 8, carbs: 12, grasas: 0 },
+      lecheSemidescremada: { kcal: 125, prot: 8, carbs: 12, grasas: 5 },
+      lecheEntera: { kcal: 160, prot: 8, carbs: 12, grasas: 8 },
+      vegetales: { kcal: 25, prot: 2, carbs: 5, grasas: 0 },
+      frutas: { kcal: 60, prot: 0, carbs: 15, grasas: 0 },
+      panesCereales: { kcal: 80, prot: 3, carbs: 15, grasas: 0 },
+      cerealesConGrasa: { kcal: 115, prot: 3, carbs: 15, grasas: 5 },
+      cerealesSinGrasa: { kcal: 80, prot: 3, carbs: 15, grasas: 0 },
+      proteinasMagras: { kcal: 55, prot: 7, carbs: 0, grasas: 3 },
+      proteinasSemimagras: { kcal: 75, prot: 7, carbs: 0, grasas: 5 },
+      proteinasAltas: { kcal: 100, prot: 7, carbs: 0, grasas: 8 },
+      grasas: { kcal: 45, prot: 0, carbs: 0, grasas: 5 }
+    };
+
+    // Recorrer el plan y sumar
+    Object.values(gridPlan).forEach(tiempoData => {
+      Object.values(tiempoData).forEach(prep => {
+        if (prep && prep.intercambios) {
+          Object.entries(prep.intercambios).forEach(([key, value]) => {
+            const cantidad = parseFloat(value) || 0;
+            if (cantidad > 0 && valoresPorIntercambio[key]) {
+              const valores = valoresPorIntercambio[key];
+              totalCalorias += valores.kcal * cantidad;
+              totalProteinas += valores.prot * cantidad;
+              totalCarbohidratos += valores.carbs * cantidad;
+              totalGrasas += valores.grasas * cantidad;
+            }
+          });
+        }
+      });
+    });
+
+    return {
+      calorias: Math.round(totalCalorias),
+      proteinas: Math.round(totalProteinas),
+      carbohidratos: Math.round(totalCarbohidratos),
+      grasas: Math.round(totalGrasas)
+    };
+  };
+
+  // Calcular macros del plan
+  const macrosDelPlan = calcularMacrosDelPlan();
+
+  /**
+   * Exporta el plan a un archivo de texto formateado
+   */
+  const exportarPlanPDF = async () => {
+    setExportando(true);
+
+    try {
+      const fecha = new Date().toLocaleDateString('es-ES');
+      let contenido = '';
+
+      // Header
+      contenido += `═══════════════════════════════════════════════════════\n`;
+      contenido += `               PLAN DE ALIMENTACIÓN\n`;
+      contenido += `═══════════════════════════════════════════════════════\n\n`;
+
+      // Datos del paciente
+      contenido += `PACIENTE: ${nombrePaciente}\n`;
+      contenido += `FECHA: ${fecha}\n\n`;
+
+      if (datosNutricionales) {
+        contenido += `───────────────────────────────────────────────────────\n`;
+        contenido += `  REQUERIMIENTOS NUTRICIONALES\n`;
+        contenido += `───────────────────────────────────────────────────────\n\n`;
+        contenido += `Calorías:      ${datosNutricionales.calorias} kcal\n`;
+        contenido += `Proteínas:     ${datosNutricionales.proteinas} g\n`;
+        contenido += `Carbohidratos: ${datosNutricionales.carbohidratos} g\n`;
+        contenido += `Grasas:        ${datosNutricionales.grasas} g\n\n`;
+
+        // Resumen del plan
+        contenido += `───────────────────────────────────────────────────────\n`;
+        contenido += `  RESUMEN DEL PLAN ACTUAL\n`;
+        contenido += `───────────────────────────────────────────────────────\n\n`;
+        contenido += `Calorías:      ${macrosDelPlan.calorias} kcal (${macrosDelPlan.calorias - datosNutricionales.calorias > 0 ? '+' : ''}${macrosDelPlan.calorias - datosNutricionales.calorias})\n`;
+        contenido += `Proteínas:     ${macrosDelPlan.proteinas} g (${macrosDelPlan.proteinas - datosNutricionales.proteinas > 0 ? '+' : ''}${macrosDelPlan.proteinas - datosNutricionales.proteinas})\n`;
+        contenido += `Carbohidratos: ${macrosDelPlan.carbohidratos} g (${macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos > 0 ? '+' : ''}${macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos})\n`;
+        contenido += `Grasas:        ${macrosDelPlan.grasas} g (${macrosDelPlan.grasas - datosNutricionales.grasas > 0 ? '+' : ''}${macrosDelPlan.grasas - datosNutricionales.grasas})\n\n`;
+      }
+
+      // Plan de comidas
+      contenido += `═══════════════════════════════════════════════════════\n`;
+      contenido += `  PLAN DE COMIDAS\n`;
+      contenido += `═══════════════════════════════════════════════════════\n\n`;
+
+      tiemposSeleccionados.forEach(tiempo => {
+        contenido += `${tiempo.toUpperCase()}\n`;
+        contenido += `───────────────────────────────────────────────────────\n`;
+
+        for (let i = 1; i <= numOpciones; i++) {
+          const prep = gridPlan[tiempo]?.[i];
+          if (prep) {
+            contenido += `  Opción ${i}: ${prep.nombre}\n`;
+            
+            // Mostrar ingredientes
+            if (prep.ingredientes && prep.ingredientes.length > 0) {
+              contenido += `    Ingredientes:\n`;
+              prep.ingredientes.forEach(ing => {
+                contenido += `      - ${ing.cantidad} ${ing.unidad} ${ing.alimento}\n`;
+              });
+            }
+
+            // Mostrar intercambios
+            if (prep.intercambios) {
+              const intercambiosPrep = Object.entries(prep.intercambios)
+                .filter(([_, value]) => value > 0)
+                .map(([key, value]) => {
+                  const nombres = {
+                    lecheDescremada: 'LD',
+                    lecheSemidescremada: 'LS',
+                    lecheEntera: 'LE',
+                    vegetales: 'V',
+                    frutas: 'F',
+                    panesCereales: 'PC',
+                    proteinasMagras: 'PM',
+                    proteinasSemimagras: 'PS',
+                    grasas: 'G'
+                  };
+                  return `${nombres[key] || key}: ${value}`;
+                });
+              
+              if (intercambiosPrep.length > 0) {
+                contenido += `    Intercambios: ${intercambiosPrep.join(', ')}\n`;
+              }
+            }
+            
+            contenido += `\n`;
+          }
+        }
+        contenido += `\n`;
+      });
+
+      // Intercambios totales
+      if (comparacionIntercambios && comparacionIntercambios.length > 0) {
+        contenido += `═══════════════════════════════════════════════════════\n`;
+        contenido += `  RESUMEN DE INTERCAMBIOS\n`;
+        contenido += `═══════════════════════════════════════════════════════\n\n`;
+        
+        comparacionIntercambios.forEach(item => {
+          const estado = item.actual === item.objetivo ? '✓' : item.actual < item.objetivo ? '⚠' : '!';
+          contenido += `${estado} ${item.nombre}: ${item.actual}/${item.objetivo}\n`;
+        });
+        contenido += `\n`;
+      }
+
+      // Footer
+      contenido += `═══════════════════════════════════════════════════════\n`;
+      contenido += `  Generado con NutriApp - ${fecha}\n`;
+      contenido += `═══════════════════════════════════════════════════════\n`;
+
+      // Crear y descargar el archivo
+      const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `plan-alimentacion-${nombrePaciente.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+    } catch (error) {
+      console.error('Error al exportar:', error);
+      alert('Error al exportar el plan');
+    } finally {
+      setExportando(false);
+    }
+  };
 
   /**
    * Abre el selector de preparación para una celda
@@ -459,6 +734,176 @@ export default function PlanificadorMenu({
               </div>
             </div>
           )}
+
+          {/* Contador de intercambios */}
+          {comparacionIntercambios && comparacionIntercambios.length > 0 && (
+            <div className="contador-intercambios-card">
+              <h3 className="contador-title">
+                Progreso de Intercambios
+              </h3>
+              <p className="contador-subtitle">
+                Compara tus intercambios actuales con el objetivo
+              </p>
+              <div className="contador-grid">
+                {comparacionIntercambios.map((item) => (
+                  <div key={item.key} className="contador-item">
+                    <div className="contador-header">
+                      <span 
+                        className="contador-badge"
+                        style={{
+                          '--badge-bg': item.color,
+                          '--badge-border': item.border
+                        }}
+                        title={item.nombre}
+                      >
+                        {item.sigla}
+                      </span>
+                      <div className="contador-valores">
+                        <span className={`contador-actual estado-${item.estado}`}>
+                          {item.actual}
+                        </span>
+                        <span className="contador-separador">/</span>
+                        <span className="contador-objetivo">{item.objetivo}</span>
+                      </div>
+                    </div>
+                    <div className="contador-barra-container">
+                      <div 
+                        className={`contador-barra estado-${item.estado}`}
+                        style={{ width: `${Math.min(item.porcentaje, 100)}%` }}
+                      />
+                    </div>
+                    {item.diferencia !== 0 && (
+                      <div className={`contador-diferencia estado-${item.estado}`}>
+                        {item.diferencia > 0 ? `+${item.diferencia}` : item.diferencia}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Resumen de Macronutrientes del Plan */}
+          {datosNutricionales && (macrosDelPlan.calorias > 0 || Object.keys(gridPlan).some(t => Object.values(gridPlan[t]).some(p => p))) && (
+            <div className="resumen-macros-card">
+              <h3 className="resumen-macros-title">
+                Resumen Nutricional del Plan
+              </h3>
+              <div className="resumen-macros-grid">
+                <div className="macro-comparison">
+                  <div className="macro-comparison-header">
+                    <span className="macro-icon"></span>
+                    <span className="macro-nombre">Calorías</span>
+                  </div>
+                  <div className="macro-valores">
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Plan:</span>
+                      <span className="macro-actual">{macrosDelPlan.calorias}</span>
+                      <span className="macro-unidad">kcal</span>
+                    </div>
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Objetivo:</span>
+                      <span className="macro-objetivo">{datosNutricionales.calorias}</span>
+                      <span className="macro-unidad">kcal</span>
+                    </div>
+                  </div>
+                  <div className="macro-diferencia-bar">
+                    <div 
+                      className={`macro-bar ${macrosDelPlan.calorias >= datosNutricionales.calorias * 0.95 && macrosDelPlan.calorias <= datosNutricionales.calorias * 1.05 ? 'correcto' : macrosDelPlan.calorias < datosNutricionales.calorias ? 'falta' : 'sobra'}`}
+                      style={{ width: `${Math.min((macrosDelPlan.calorias / datosNutricionales.calorias) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className={`macro-diff ${macrosDelPlan.calorias >= datosNutricionales.calorias * 0.95 && macrosDelPlan.calorias <= datosNutricionales.calorias * 1.05 ? 'correcto' : macrosDelPlan.calorias < datosNutricionales.calorias ? 'falta' : 'sobra'}`}>
+                    {macrosDelPlan.calorias - datosNutricionales.calorias > 0 ? '+' : ''}{macrosDelPlan.calorias - datosNutricionales.calorias} kcal
+                  </span>
+                </div>
+
+                <div className="macro-comparison">
+                  <div className="macro-comparison-header">
+                    <span className="macro-icon"></span>
+                    <span className="macro-nombre">Proteínas</span>
+                  </div>
+                  <div className="macro-valores">
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Plan:</span>
+                      <span className="macro-actual">{macrosDelPlan.proteinas}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Objetivo:</span>
+                      <span className="macro-objetivo">{datosNutricionales.proteinas}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                  </div>
+                  <div className="macro-diferencia-bar">
+                    <div 
+                      className={`macro-bar ${macrosDelPlan.proteinas >= datosNutricionales.proteinas * 0.95 && macrosDelPlan.proteinas <= datosNutricionales.proteinas * 1.05 ? 'correcto' : macrosDelPlan.proteinas < datosNutricionales.proteinas ? 'falta' : 'sobra'}`}
+                      style={{ width: `${Math.min((macrosDelPlan.proteinas / datosNutricionales.proteinas) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className={`macro-diff ${macrosDelPlan.proteinas >= datosNutricionales.proteinas * 0.95 && macrosDelPlan.proteinas <= datosNutricionales.proteinas * 1.05 ? 'correcto' : macrosDelPlan.proteinas < datosNutricionales.proteinas ? 'falta' : 'sobra'}`}>
+                    {macrosDelPlan.proteinas - datosNutricionales.proteinas > 0 ? '+' : ''}{macrosDelPlan.proteinas - datosNutricionales.proteinas} g
+                  </span>
+                </div>
+
+                <div className="macro-comparison">
+                  <div className="macro-comparison-header">
+                    <span className="macro-icon"></span>
+                    <span className="macro-nombre">Carbohidratos</span>
+                  </div>
+                  <div className="macro-valores">
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Plan:</span>
+                      <span className="macro-actual">{macrosDelPlan.carbohidratos}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Objetivo:</span>
+                      <span className="macro-objetivo">{datosNutricionales.carbohidratos}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                  </div>
+                  <div className="macro-diferencia-bar">
+                    <div 
+                      className={`macro-bar ${macrosDelPlan.carbohidratos >= datosNutricionales.carbohidratos * 0.95 && macrosDelPlan.carbohidratos <= datosNutricionales.carbohidratos * 1.05 ? 'correcto' : macrosDelPlan.carbohidratos < datosNutricionales.carbohidratos ? 'falta' : 'sobra'}`}
+                      style={{ width: `${Math.min((macrosDelPlan.carbohidratos / datosNutricionales.carbohidratos) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className={`macro-diff ${macrosDelPlan.carbohidratos >= datosNutricionales.carbohidratos * 0.95 && macrosDelPlan.carbohidratos <= datosNutricionales.carbohidratos * 1.05 ? 'correcto' : macrosDelPlan.carbohidratos < datosNutricionales.carbohidratos ? 'falta' : 'sobra'}`}>
+                    {macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos > 0 ? '+' : ''}{macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos} g
+                  </span>
+                </div>
+
+                <div className="macro-comparison">
+                  <div className="macro-comparison-header">
+                    <span className="macro-icon"></span>
+                    <span className="macro-nombre">Grasas</span>
+                  </div>
+                  <div className="macro-valores">
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Plan:</span>
+                      <span className="macro-actual">{macrosDelPlan.grasas}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                    <div className="macro-valor-item">
+                      <span className="macro-label">Objetivo:</span>
+                      <span className="macro-objetivo">{datosNutricionales.grasas}</span>
+                      <span className="macro-unidad">g</span>
+                    </div>
+                  </div>
+                  <div className="macro-diferencia-bar">
+                    <div 
+                      className={`macro-bar ${macrosDelPlan.grasas >= datosNutricionales.grasas * 0.95 && macrosDelPlan.grasas <= datosNutricionales.grasas * 1.05 ? 'correcto' : macrosDelPlan.grasas < datosNutricionales.grasas ? 'falta' : 'sobra'}`}
+                      style={{ width: `${Math.min((macrosDelPlan.grasas / datosNutricionales.grasas) * 100, 100)}%` }}
+                    />
+                  </div>
+                  <span className={`macro-diff ${macrosDelPlan.grasas >= datosNutricionales.grasas * 0.95 && macrosDelPlan.grasas <= datosNutricionales.grasas * 1.05 ? 'correcto' : macrosDelPlan.grasas < datosNutricionales.grasas ? 'falta' : 'sobra'}`}>
+                    {macrosDelPlan.grasas - datosNutricionales.grasas > 0 ? '+' : ''}{macrosDelPlan.grasas - datosNutricionales.grasas} g
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -582,6 +1027,16 @@ export default function PlanificadorMenu({
 
       {/* Botones de acción */}
       <div className="planificador-actions">
+        <button
+          onClick={exportarPlanPDF}
+          disabled={exportando || !nombrePaciente.trim() || Object.keys(gridPlan).every(t => Object.values(gridPlan[t]).every(p => !p))}
+          className="btn-exportar-plan"
+          title="Exportar plan a archivo de texto"
+        >
+          <Download className="icon-sm" />
+          {exportando ? 'Exportando...' : 'Exportar Plan'}
+        </button>
+
         <button
           onClick={guardarPlan}
           disabled={guardando || !nombrePaciente.trim()}
