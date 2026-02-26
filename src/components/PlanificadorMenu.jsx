@@ -5,6 +5,7 @@ import { db } from '../firebase/config';
 import { Calendar, Clock, Plus, X, Save, Search, ChefHat, Download } from 'lucide-react';
 import { TIEMPOS_COMIDA, INTERCAMBIOS_NUTRICIONALES } from '../utils/constantes';
 import './PlanificadorMenu.css';
+import { generarPDFProfesional } from '../utils/pdfGenerator'; 
 
 /**
  * Planificador de menú - Asigna preparaciones a tiempos de comida
@@ -282,128 +283,29 @@ export default function PlanificadorMenu({
    * Exporta el plan a un archivo de texto formateado
    */
   const exportarPlanPDF = async () => {
-    setExportando(true);
+  setExportando(true);
 
-    try {
-      const fecha = new Date().toLocaleDateString('es-ES');
-      let contenido = '';
+  try {
+    const datosExportacion = {
+      nombrePaciente: nombrePaciente,
+      nombreNutricionista: 'Lesly Carolina Ayala Chicas',
+      logo: null, // ← SIN LOGO POR AHORA (arregla el error)
+      gridPlan: gridPlan,
+      tiemposComida: tiemposSeleccionados,
+      numOpciones: numOpciones,
+      datosNutricionales: datosNutricionales,
+      recomendaciones: []
+    };
 
-      // Header
-      contenido += `═══════════════════════════════════════════════════════\n`;
-      contenido += `               PLAN DE ALIMENTACIÓN\n`;
-      contenido += `═══════════════════════════════════════════════════════\n\n`;
+    generarPDFProfesional(datosExportacion);
 
-      // Datos del paciente
-      contenido += `PACIENTE: ${nombrePaciente}\n`;
-      contenido += `FECHA: ${fecha}\n\n`;
-
-      if (datosNutricionales) {
-        contenido += `───────────────────────────────────────────────────────\n`;
-        contenido += `  REQUERIMIENTOS NUTRICIONALES\n`;
-        contenido += `───────────────────────────────────────────────────────\n\n`;
-        contenido += `Calorías:      ${datosNutricionales.calorias} kcal\n`;
-        contenido += `Proteínas:     ${datosNutricionales.proteinas} g\n`;
-        contenido += `Carbohidratos: ${datosNutricionales.carbohidratos} g\n`;
-        contenido += `Grasas:        ${datosNutricionales.grasas} g\n\n`;
-
-        // Resumen del plan
-        contenido += `───────────────────────────────────────────────────────\n`;
-        contenido += `  RESUMEN DEL PLAN ACTUAL\n`;
-        contenido += `───────────────────────────────────────────────────────\n\n`;
-        contenido += `Calorías:      ${macrosDelPlan.calorias} kcal (${macrosDelPlan.calorias - datosNutricionales.calorias > 0 ? '+' : ''}${macrosDelPlan.calorias - datosNutricionales.calorias})\n`;
-        contenido += `Proteínas:     ${macrosDelPlan.proteinas} g (${macrosDelPlan.proteinas - datosNutricionales.proteinas > 0 ? '+' : ''}${macrosDelPlan.proteinas - datosNutricionales.proteinas})\n`;
-        contenido += `Carbohidratos: ${macrosDelPlan.carbohidratos} g (${macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos > 0 ? '+' : ''}${macrosDelPlan.carbohidratos - datosNutricionales.carbohidratos})\n`;
-        contenido += `Grasas:        ${macrosDelPlan.grasas} g (${macrosDelPlan.grasas - datosNutricionales.grasas > 0 ? '+' : ''}${macrosDelPlan.grasas - datosNutricionales.grasas})\n\n`;
-      }
-
-      // Plan de comidas
-      contenido += `═══════════════════════════════════════════════════════\n`;
-      contenido += `  PLAN DE COMIDAS\n`;
-      contenido += `═══════════════════════════════════════════════════════\n\n`;
-
-      tiemposSeleccionados.forEach(tiempo => {
-        contenido += `${tiempo.toUpperCase()}\n`;
-        contenido += `───────────────────────────────────────────────────────\n`;
-
-        for (let i = 1; i <= numOpciones; i++) {
-          const prep = gridPlan[tiempo]?.[i];
-          if (prep) {
-            contenido += `  Opción ${i}: ${prep.nombre}\n`;
-            
-            // Mostrar ingredientes
-            if (prep.ingredientes && prep.ingredientes.length > 0) {
-              contenido += `    Ingredientes:\n`;
-              prep.ingredientes.forEach(ing => {
-                contenido += `      - ${ing.cantidad} ${ing.unidad} ${ing.alimento}\n`;
-              });
-            }
-
-            // Mostrar intercambios
-            if (prep.intercambios) {
-              const intercambiosPrep = Object.entries(prep.intercambios)
-                .filter(([_, value]) => value > 0)
-                .map(([key, value]) => {
-                  const nombres = {
-                    lecheDescremada: 'LD',
-                    lecheSemidescremada: 'LS',
-                    lecheEntera: 'LE',
-                    vegetales: 'V',
-                    frutas: 'F',
-                    panesCereales: 'PC',
-                    proteinasMagras: 'PM',
-                    proteinasSemimagras: 'PS',
-                    grasas: 'G'
-                  };
-                  return `${nombres[key] || key}: ${value}`;
-                });
-              
-              if (intercambiosPrep.length > 0) {
-                contenido += `    Intercambios: ${intercambiosPrep.join(', ')}\n`;
-              }
-            }
-            
-            contenido += `\n`;
-          }
-        }
-        contenido += `\n`;
-      });
-
-      // Intercambios totales
-      if (comparacionIntercambios && comparacionIntercambios.length > 0) {
-        contenido += `═══════════════════════════════════════════════════════\n`;
-        contenido += `  RESUMEN DE INTERCAMBIOS\n`;
-        contenido += `═══════════════════════════════════════════════════════\n\n`;
-        
-        comparacionIntercambios.forEach(item => {
-          const estado = item.actual === item.objetivo ? '✓' : item.actual < item.objetivo ? '⚠' : '!';
-          contenido += `${estado} ${item.nombre}: ${item.actual}/${item.objetivo}\n`;
-        });
-        contenido += `\n`;
-      }
-
-      // Footer
-      contenido += `═══════════════════════════════════════════════════════\n`;
-      contenido += `  Generado con NutriApp - ${fecha}\n`;
-      contenido += `═══════════════════════════════════════════════════════\n`;
-
-      // Crear y descargar el archivo
-      const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `plan-alimentacion-${nombrePaciente.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.txt`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-    } catch (error) {
-      console.error('Error al exportar:', error);
-      alert('Error al exportar el plan');
-    } finally {
-      setExportando(false);
-    }
-  };
+  } catch (error) {
+    console.error('Error al exportar:', error);
+    alert('Error al exportar el plan a PDF');
+  } finally {
+    setExportando(false);
+  }
+};
 
   /**
    * Abre el selector de preparación para una celda
